@@ -73,6 +73,9 @@ public:
 	// Copy constructor (1/5)
 	SinglyLinkedList(const SinglyLinkedList& toCopy)
 	{
+		head = nullptr;
+		tail = nullptr;
+
 		Node* current = toCopy.head;
 
 		// While there is data in the list we are copying
@@ -158,15 +161,15 @@ public:
 		// Create a new Node
 		Node* temp = new Node(dataPassed);
 
-		if (tail != nullptr) {
+		if (tail == nullptr) {
+			head = temp;
+			tail = temp;
+			temp->next = nullptr;
+		}
+		else {
 			tail->next = temp;
 			temp->next = nullptr;
 			tail = temp;
-		}
-		else {
-			head = temp;
-			tail = temp;
-			tail->next = nullptr;
 		}
 	}
 

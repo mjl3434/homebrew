@@ -34,40 +34,45 @@ void runSinglyLinkedListTests()
 	// FIXME: Learn C++11 iteration
 	cout << "Iterating over intList1.\n";
 	for (intListItr = intList1.begin(); intListItr != intList1.end(); intListItr++) {
-		cout << *intListItr << endl;
+		cout << *intListItr << " ";
 	}
-	cout << "Adding 2 to every item in intList1";
+	cout << endl;
+	cout << "Adding 2 to every item in intList1\n";
 	for (intListItr = intList1.begin(); intListItr != intList1.end(); intListItr++) {
 		*intListItr += 2;
 	}
 	cout << "Iterating over intList1.\n";
 	for (intListItr = intList1.begin(); intListItr != intList1.end(); intListItr++) {
-		cout << *intListItr << endl;
+		cout << *intListItr << " ";
 	}
+	cout << endl;
 
 	// Call copy constructor
 	cout << "Constructing intList2 as a copy of intList1.\n";
 	Mjl::Homebrew::SinglyLinkedList<int> intList2(intList1);
 	for (intListItr = intList2.begin(); intListItr != intList2.end(); intListItr++) {
-		cout << *intListItr << endl;
+		cout << *intListItr << " ";
 	}
-
+	cout << endl;
 	// Call assignment operator
 	cout << "Assigning longList to intList1, then iterating over intList1.\n";
 	intList1 = longList;
 	for (intListItr = intList1.begin(); intListItr != intList1.end(); intListItr++) {
-		cout << *intListItr << endl;
+		cout << *intListItr << " ";
 	}
+	cout << endl;
 	cout << "Assigning shortList to intList1, then iterating over intList1.\n";
 	intList1 = shortList;
 	for (intListItr = intList1.begin(); intListItr != intList1.end(); intListItr++) {
-		cout << *intListItr << endl;
+		cout << *intListItr << " ";
 	}
+	cout << endl;
 	cout << "Assigning intList2 to intList1, then iterating over intList1.\n";
 	intList1 = intList2;
 	for (intListItr = intList1.begin(); intListItr != intList1.end(); intListItr++) {
-		cout << *intListItr << endl;
+		cout << *intListItr << " ";
 	}
+	cout << endl;
 
 	// Tested:
 	//iterator() : node(nullptr) { }
