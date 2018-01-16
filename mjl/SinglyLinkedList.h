@@ -52,10 +52,12 @@ namespace Homebrew {
 	 *     - size()
 	 *
 	 * Queue<T> class
-	 *
+	 *     - enqueue()
+	 *     - dequeue()
+	 *     - front()
+	 *     - back()
+	 *     - size()
 	 */
-
-
 
 template <typename T> class SinglyLinkedList
 {
@@ -320,7 +322,7 @@ template <typename T> class Queue
 public:
 	void enqueue(const T& data)
 	{
-		list.pushback();
+		list.pushBack(data);
 	}
 
 	void dequeue(void)

@@ -22,13 +22,16 @@
 #include "SinglyLinkedList_test.h"
 #include "Stack_test.h"
 #include "Queue_test.h"
+#include "Array_test.h"
 
 int main()
 {
-
 	runSinglyLinkedListTests();
 	runStackTests();
-	//runQueueTests();
+	runQueueTests();
+
+	// runArrayTests();
+	// runHashTableTests();
 
 	return 0;
 }
