@@ -19,41 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef ARRAY_H
-#define ARRAY_H
+#include "DynamicArray.h"
+#include "DynamicArray_test.h"
 
-namespace Mjl {
-namespace Homebrew {
+#include <iostream>
 
-template <typename T> class Array
+
+using namespace std;
+using namespace Mjl::Homebrew;
+
+void runArrayTests(void)
 {
-public:
-	Array();
-	virtual ~Array();
 
-	// Constructors:
-	// 1. Empty array
-	// 2. Intialized to N copies of object
-	// 3. Copy constructor
-	// 4. iterator begin, iterator end
-
-	// operator[] - for read acess
-	// operator[] - for write access
-	// operator=
-
-	// size() - how many elements are present
-	// capacity() - how much memory is currently reserved
-
-	// clear() - delete everything
-
-	// iterators:
-	// .begin
-	// .end
-	// ++
-
-};
-
-} // end namespace Homebrew
-} // end namespace Mjl
-
-#endif // ARRAY_H
+}

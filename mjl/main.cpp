@@ -19,10 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#include "DynamicArray_test.h"
 #include "SinglyLinkedList_test.h"
 #include "Stack_test.h"
 #include "Queue_test.h"
-#include "Array_test.h"
 
 int main()
 {
