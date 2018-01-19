@@ -28,9 +28,71 @@ namespace Homebrew {
 template <typename T> class DynamicArray
 {
 public:
+
+    /*
+    int i = 0;
+    DynamicArray<int> da;
+    da.append(i++);
+    da.append(i++);
+    da.append(i++);
+    da.append(i++);
+    da.append(i);     //  1, 2, 3, 4, 5
+    DynamicArray<int>::iterator itr = da.begin();
+
+    for (itr = da.begin(); itr != da.end(); itr++) {
+        cout << *itr << "\n";
+    }
+     */
+
+    class iterator
+    {
+    public:
+
+        iterator() : currentIndex(0) {
+
+        }
+
+        T& operator*()
+        {
+            //return node->data;
+            return array[currentIndex];
+        }
+
+        void operator++(int)
+        {
+            //if (this->node != nullptr)
+            //    this->node = this->node->next;
+        }
+
+        bool operator!=(const iterator& it)
+        {
+            //return it.node != this->node;
+        }
+
+        int currentIndex;
+    };
+
+    DynamicArray<T>::iterator begin(void)
+    {
+        return DynamicArray<T>::iterator(head);
+    }
+
+    DynamicArray<T>::iterator end(void)
+    {
+        return DynamicArray<T>::iterator(tail->next);
+    }
+
+
 	DynamicArray() : size(0), capacity(initialArrayCapacity) {
 		array = new T[initialArrayCapacity];
 	}
+
+	// Initialize count copies of data
+	DynamicArray(int count, const T& data) {
+
+	}
+
+	// Range counstructor
 
 	// Copy constructor
 	DynamicArray(const DynamicArray& from) {
