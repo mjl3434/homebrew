@@ -21,6 +21,7 @@
  */
 #ifndef DYNAMIC_ARRAY_H
 #define DYNAMIC_ARRAY_H
+#include <stdexcept>
 
 namespace Mjl {
 namespace Homebrew {
@@ -48,20 +49,26 @@ public:
     {
     public:
 
-        iterator() : currentIndex(0) {
-
+        iterator(unsigned int index) : currentIndex(0) {
+            if (index < size) {
+                currentIndex = index;
+            }
+            else {
+                // FIXME: More detailed message
+                throw std::out_of_range("Attempted to create iterator to element that is out of range");
+            }
         }
 
         T& operator*()
         {
-            //return node->data;
+            // FIXME: Range checking?
             return array[currentIndex];
         }
 
-        void operator++(int)
+        void operator++()
         {
-            //if (this->node != nullptr)
-            //    this->node = this->node->next;
+            // FIXME: Add range checking
+            currentIndex++;
         }
 
         bool operator!=(const iterator& it)
@@ -74,12 +81,12 @@ public:
 
     DynamicArray<T>::iterator begin(void)
     {
-        return DynamicArray<T>::iterator(head);
+        return DynamicArray<T>::iterator();
     }
 
     DynamicArray<T>::iterator end(void)
     {
-        return DynamicArray<T>::iterator(tail->next);
+        return DynamicArray<T>::iterator();
     }
 
 

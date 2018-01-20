@@ -83,7 +83,7 @@ public:
 			return node->data;
 		}
 
-	    void operator++(int)
+	    void operator++()
 	    {
 	    	if (this->node != nullptr)
 	    		this->node = this->node->next;
