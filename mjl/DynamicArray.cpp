@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Marcus Larwill
+ * Copyright (c) 2018 Marcus Larwill
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,28 +20,11 @@
  * SOFTWARE.
  */
 #include "DynamicArray.h"
-#include "DynamicArray_test.h"
 
-#include <iostream>
+namespace Mjl {
+namespace Homebrew {
 
+	// Template class implementation is in .h
 
-using namespace std;
-using namespace Mjl::Homebrew;
-
-void runArrayTests(void)
-{
-
-    int i = 0;
-    DynamicArray<int> da;
-    da.append(i++);
-    da.append(i++);
-    da.append(i++);
-    da.append(i++);
-    da.append(i);     //  1, 2, 3, 4, 5
-    DynamicArray<int>::iterator itr = da.begin();
-
-    for (itr = da.begin(); itr != da.end(); itr++) {
-        cout << *itr << "\n";
-    }
-
-}
+}	// end namespace Homebrew
+}	// end namespace Mjl

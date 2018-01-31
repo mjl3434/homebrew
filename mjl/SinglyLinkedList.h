@@ -83,7 +83,8 @@ public:
 			return node->data;
 		}
 
-	    void operator++()
+	    // Confusingly, the 'int' is used to denote postfix operator in C++
+	    void operator++(int)
 	    {
 	    	if (this->node != nullptr)
 	    		this->node = this->node->next;

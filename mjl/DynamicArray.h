@@ -21,7 +21,13 @@
  */
 #ifndef DYNAMIC_ARRAY_H
 #define DYNAMIC_ARRAY_H
+#include <limits>
+#include <sstream>
 #include <stdexcept>
+#include <string>
+
+using std::ostringstream;
+using std::string;
 
 namespace Mjl {
 namespace Homebrew {
@@ -49,45 +55,44 @@ public:
     {
     public:
 
-        iterator(unsigned int index) : currentIndex(0) {
+        iterator(DynamicArray<T>& theParent, unsigned int index) : parent(theParent), currentIndex(0) {
+
+        	ostringstream oss;
+
             if (index < size) {
                 currentIndex = index;
             }
             else {
-                // FIXME: More detailed message
-                throw std::out_of_range("Attempted to create iterator to element that is out of range");
+            	oss << "Attempted to create iterator to element "
+            	    << index << " but DynamicArray has size=" << size;
+                throw std::out_of_range(string(oss.str()));
             }
         }
 
         T& operator*()
         {
-            // FIXME: Range checking?
             return array[currentIndex];
         }
 
         void operator++()
         {
-            // FIXME: Add range checking
-            currentIndex++;
+        	if (currentIndex < size)
+        		currentIndex++;
         }
 
         bool operator!=(const iterator& it)
         {
+        	return &it.currentIndex != &this->currentIndex;
+
             //return it.node != this->node;
         }
 
+    private:
+        DynamicArray<T>& parent;
         int currentIndex;
     };
 
-    DynamicArray<T>::iterator begin(void)
-    {
-        return DynamicArray<T>::iterator();
-    }
 
-    DynamicArray<T>::iterator end(void)
-    {
-        return DynamicArray<T>::iterator();
-    }
 
 
 	DynamicArray() : size(0), capacity(initialArrayCapacity) {
@@ -95,8 +100,28 @@ public:
 	}
 
 	// Initialize count copies of data
-	DynamicArray(int count, const T& data) {
+	DynamicArray(int count, const T& data) : array(nullptr), size(count), capacity(initialArrayCapacity) {
 
+		// The number of bits in an int - the number of bits required to represent initialArrayCapacity = 8;
+		const unsigned int shiftLimit = std::numeric_limits<unsigned int>::digits - 4;
+
+		// Find next power of two that is >= count
+		unsigned int n = capacity;
+		unsigned int shifts = 0;
+
+		// The shift limit is used to avoid overflow
+		while (n < count && shifts < shiftLimit) {
+			n = n << 1;	// Left shift 1 in order to multiply by 2
+			shifts++;	// Keep track of how many times we have shifted
+		}
+
+		// Allocate n T with default constructor
+		array = new T[n];
+
+		 // Copy data to newly allocated objects (object T's copy assignment operator is used)
+		for(int i = 0; i < count; i++) {
+			array[i] = data;
+		}
 	}
 
 	// Range counstructor
@@ -113,22 +138,52 @@ public:
 		// Case 3: from.size > this.size
 	}
 
+	virtual ~DynamicArray() {
+		delete array;
+	}
+
+    DynamicArray<T>::iterator begin(void)
+    {
+        return DynamicArray<T>::iterator(0);
+    }
+
+    DynamicArray<T>::iterator end(void)
+    {
+        return DynamicArray<T>::iterator(size-1);
+    }
+
 	// FIXME: return copy by value, or copy by reference?
-	int& operator[](unsigned int i) {
+	T& operator[](unsigned int i) {
 		return array[i];
+	}
+
+	void append(T data) {
+
+		if (size + 1 > capacity) {
+
+			// Expand the array if necessary
+			capacity *= 2;
+			T* oldArray = array;
+			array = new T[capacity];
+			for (int i = 0; i < size; i++) {
+				array[i] = oldArray[i];
+			}
+			delete[] oldArray;
+		}
+
+		array[size] = data;
+		size++;
 	}
 
 	// FIXME: Understand the point of separate const operator[]
 	//const int& operator[] const() ...
 
-	virtual ~DynamicArray() {
-		delete array;
-	}
+
 
 private:
 	T* array;
-	int size;
-	int capacity;
+	unsigned int size;
+	unsigned int capacity;
 	const int initialArrayCapacity = 8;
 
 	// Constructors:
