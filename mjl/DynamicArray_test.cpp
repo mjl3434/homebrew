@@ -24,20 +24,18 @@
 
 #include <iostream>
 
-
 using namespace std;
 using namespace Mjl::Homebrew;
 
 void runArrayTests(void)
 {
-
     int i = 0;
     DynamicArray<int> da;
     da.append(i++);
     da.append(i++);
     da.append(i++);
     da.append(i++);
-    da.append(i);     //  1, 2, 3, 4, 5
+    da.append(i);     // 0, 1, 2, 3, 4
     DynamicArray<int>::iterator itr = da.begin();
 
     for (itr = da.begin(); itr != da.end(); itr++) {

@@ -25,8 +25,10 @@
 using namespace std;
 using namespace Mjl::Homebrew;
 
-void runSinglyLinkedListTests()
+bool runSinglyLinkedListTests()
 {
+	bool testResult = false;
+
 	SinglyLinkedList<int> aaa;
 	SinglyLinkedList<int> longList;
 	SinglyLinkedList<int> shortList;
@@ -162,15 +164,6 @@ void runSinglyLinkedListTests()
 	//SinglyLinkedList(SinglyLinkedList&&);
 	//SinglyLinkedList& operator=(SinglyLinkedList&&);
 
-
-
-
-
-
-
-
-
-
-
+	return testResult;
 };
 

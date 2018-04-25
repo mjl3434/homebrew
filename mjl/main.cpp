@@ -30,7 +30,7 @@ int main()
 	runStackTests();
 	runQueueTests();
 
-	// runArrayTests();
+    runArrayTests();
 	// runHashTableTests();
 
 	return 0;

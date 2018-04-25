@@ -7,6 +7,8 @@ LDFLAGS=-std=c++14
 
 OBJECTS=\
 	main.o \
+	DynamicArray.o \
+	DynamicArray_test.o \
 	Queue_test.o \
 	SinglyLinkedList.o \
 	SinglyLinkedList_test.o \
@@ -31,3 +33,10 @@ Stack_test.o: Stack_test.cpp
 
 Queue_test.o: Queue_test.cpp
 	$(GXX) $(CFLAGS) -c Queue_test.cpp
+	
+DynamicArray.o: DynamicArray.cpp
+	$(GXX) $(CFLAGS) -c DynamicArray.cpp
+	
+DynamicArray_test.o: DynamicArray_test.cpp
+	$(GXX) $(CFLAGS) -c DynamicArray_test.cpp
+

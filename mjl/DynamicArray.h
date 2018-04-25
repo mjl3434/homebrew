@@ -43,7 +43,7 @@ public:
     da.append(i++);
     da.append(i++);
     da.append(i++);
-    da.append(i);     //  1, 2, 3, 4, 5
+    da.append(i);     //  0, 1 ,2, 3, 4
     DynamicArray<int>::iterator itr = da.begin();
 
     for (itr = da.begin(); itr != da.end(); itr++) {
@@ -71,7 +71,7 @@ public:
 
         T& operator*()
         {
-            return array[currentIndex];
+        	return parent.array[currentIndex];
         }
 
         void operator++()
@@ -125,6 +125,7 @@ public:
 	}
 
 	// Range counstructor
+	// FIXME: Define and add range constructor support
 
 	// Copy constructor
 	DynamicArray(const DynamicArray& from) {
@@ -144,12 +145,12 @@ public:
 
     DynamicArray<T>::iterator begin(void)
     {
-        return DynamicArray<T>::iterator(0);
+        return DynamicArray<T>::iterator(*this, 1);
     }
 
     DynamicArray<T>::iterator end(void)
     {
-        return DynamicArray<T>::iterator(size-1);
+        return DynamicArray<T>::iterator(*this, size-1);
     }
 
 	// FIXME: return copy by value, or copy by reference?
@@ -179,11 +180,10 @@ public:
 	//const int& operator[] const() ...
 
 
-
 private:
 	T* array;
-	unsigned int size;
-	unsigned int capacity;
+	unsigned int size;						// How many elements is the array holding
+	unsigned int capacity;					// How many elements can be held without resizing
 	const int initialArrayCapacity = 8;
 
 	// Constructors:
