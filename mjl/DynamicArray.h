@@ -36,21 +36,6 @@ template <typename T> class DynamicArray
 {
 public:
 
-    /*
-    int i = 0;
-    DynamicArray<int> da;
-    da.append(i++);
-    da.append(i++);
-    da.append(i++);
-    da.append(i++);
-    da.append(i);     //  0, 1 ,2, 3, 4
-    DynamicArray<int>::iterator itr = da.begin();
-
-    for (itr = da.begin(); itr != da.end(); itr++) {
-        cout << *itr << "\n";
-    }
-     */
-
     class iterator
     {
     public:
@@ -59,44 +44,67 @@ public:
 
         	ostringstream oss;
 
-            if (index < size) {
+            if (index <= theParent.size) {
                 currentIndex = index;
             }
             else {
             	oss << "Attempted to create iterator to element "
-            	    << index << " but DynamicArray has size=" << size;
+            	    << index << " but DynamicArray has size=" << theParent.size;
                 throw std::out_of_range(string(oss.str()));
             }
         }
 
+        // Copy assignment operator
+        iterator& operator=(const iterator& rhs) {
+        	this->parent = rhs.parent;
+        	this->currentIndex = rhs.currentIndex;
+        	return *this;
+        }
+
+        // Dereference operator
         T& operator*()
         {
         	return parent.array[currentIndex];
         }
 
-        void operator++()
-        {
-        	if (currentIndex < size)
+        // Prefix increment operator (++c)
+        iterator& operator++() {
+        	if (currentIndex < parent.size)
         		currentIndex++;
+        	return *this;
         }
 
-        bool operator!=(const iterator& it)
-        {
-        	return &it.currentIndex != &this->currentIndex;
-
-            //return it.node != this->node;
+        // Postfix increment operator (c++)
+        iterator operator++(int) {
+        	if (currentIndex < parent.size)
+        		currentIndex++;
+        	return *this;
         }
+
+        bool operator==(const iterator& it) const {
+        	// If iterator points to same spot of same object they are equal
+        	if (&it.parent == &this->parent && it.currentIndex == this->currentIndex)
+        		return true;
+        	else
+        		return false;
+		}
+
+        bool operator!=(const iterator& it) const {
+        	if (&it.parent == &this->parent && it.currentIndex == this->currentIndex)
+        		return false;
+        	else
+        		return true;
+		}
 
     private:
         DynamicArray<T>& parent;
-        int currentIndex;
+        unsigned int currentIndex;
     };
-
-
 
 
 	DynamicArray() : size(0), capacity(initialArrayCapacity) {
 		array = new T[initialArrayCapacity];
+		capacity = initialArrayCapacity; // FIXME: why is initializer list failing making this necessary?
 	}
 
 	// Initialize count copies of data
@@ -145,12 +153,12 @@ public:
 
     DynamicArray<T>::iterator begin(void)
     {
-        return DynamicArray<T>::iterator(*this, 1);
+        return DynamicArray<T>::iterator(*this, 0);
     }
 
     DynamicArray<T>::iterator end(void)
     {
-        return DynamicArray<T>::iterator(*this, size-1);
+        return DynamicArray<T>::iterator(*this, size);
     }
 
 	// FIXME: return copy by value, or copy by reference?
@@ -166,7 +174,7 @@ public:
 			capacity *= 2;
 			T* oldArray = array;
 			array = new T[capacity];
-			for (int i = 0; i < size; i++) {
+			for (unsigned int i = 0; i < size; i++) {
 				array[i] = oldArray[i];
 			}
 			delete[] oldArray;

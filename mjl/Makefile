@@ -1,7 +1,7 @@
 # Philisophy: Be extremely literal and keep everything super simple until that approach no longer scales
 
 PROGRAM_NAME=testDataStructures
-GXX=g++
+GXX=g++ -g -O0 -Wall
 CFLAGS=-std=c++14
 LDFLAGS=-std=c++14
 
@@ -22,7 +22,7 @@ $(PROGRAM_NAME): $(OBJECTS)
 main.o: main.cpp
 	$(GXX) $(CFLAGS) -c main.cpp
 	
-SinglyLinkedList.o: SinglyLinkedList.cpp
+SinglyLinkedList.o: SinglyLinkedList.cpp SinglyLinkedList.h
 	$(GXX) $(CFLAGS) -c SinglyLinkedList.cpp
 
 SinglyLinkedList_test.o: SinglyLinkedList_test.cpp
@@ -34,7 +34,7 @@ Stack_test.o: Stack_test.cpp
 Queue_test.o: Queue_test.cpp
 	$(GXX) $(CFLAGS) -c Queue_test.cpp
 	
-DynamicArray.o: DynamicArray.cpp
+DynamicArray.o: DynamicArray.cpp DynamicArray.h
 	$(GXX) $(CFLAGS) -c DynamicArray.cpp
 	
 DynamicArray_test.o: DynamicArray_test.cpp
