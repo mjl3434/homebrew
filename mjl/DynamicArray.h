@@ -180,34 +180,23 @@ public:
 	// Copy assignment operator
 	DynamicArray& operator=(const DynamicArray& from) {
 
-		if (from.theSize <= this->theSize) {
+		// Case 1: from.theSize < this.theSize
+		// Case 2: from.theSize == this.theSize
+		// Case 3: from.size > this.theSize
 
-			// Case 1: from.theSize < this.theSize
-			// Case 2: from.theSize == this.theSize
+		// Allocate enough memory to hold new array
+		T* temp = new T[from.theCapacity];
 
-			// FIXME: Clear out / initialize array[] first??
-			for (unsigned int i = 0; i < from.theSize; i++) {
-				this->array[i] = from.array[i];
-			}
+		// Copy over the data
+		for (unsigned int i = 0; i < from.theSize; i++) {
+			temp[i] = from.array[i];
 		}
-		else {
 
-			// Case 3: from.size > this.theSize
+		// Free up the old memory
+		delete[] array;
 
-			// Allocate enough memory to hold new array
-			T* temp = new T[from.theCapacity];
-
-			// Copy over the data
-			for (unsigned int i = 0; i < from.theSize; i++) {
-				temp[i] = from.array[i];
-			}
-
-			// Free up the old memory
-			delete[] array;
-
-			// Assign new memory
-			array = temp;
-		}
+		// Assign new memory
+		array = temp;
 
 		return *this;
 	}
@@ -263,7 +252,7 @@ private:
 	T* array;
 	unsigned int theSize;					// How many elements is the array holding
 	unsigned int theCapacity;					// How many elements can be held without resizing
-	const int initialArrayCapacity = 8;
+	static const int initialArrayCapacity = 8;
 
 	// Constructors:
 	// 1. Empty array
