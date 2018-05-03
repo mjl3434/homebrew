@@ -30,21 +30,35 @@ using namespace Mjl::Homebrew;
 void runArrayTests(void)
 {
     int i = 0;
+
+    // Test constructor
     DynamicArray<int> da;
+
+    // Test append()
     da.append(i++);
     da.append(i++);
     da.append(i++);
     da.append(i++);
     da.append(i);     // 0, 1, 2, 3, 4
-    DynamicArray<int>::iterator itr = da.begin();
 
-    for (itr = da.begin(); itr != da.end(); itr++) {
-        cout << *itr << "\n";
+    DynamicArray<int>::iterator daItr = da.begin();
+    for (daItr = da.begin(); daItr != da.end(); daItr++) {
+        cout << *daItr << "\n";
     }
 
+    // Test copy constructor
     DynamicArray<int> db(da);
-    DynamicArray<int> dc = da;
+    DynamicArray<int>::iterator dbItr = db.begin();
+    for (dbItr = db.begin(); dbItr != db.end(); dbItr++) {
+    	cout << *dbItr << "\n";
+    }
 
+    // Test copy assignment operator
+    DynamicArray<int> dc = da;
+    DynamicArray<int>::iterator dcItr = dc.begin();
+    for (dcItr = dc.begin(); dcItr != dc.end(); dcItr++) {
+    	cout << *dcItr << "\n";
+    }
 
 
 }

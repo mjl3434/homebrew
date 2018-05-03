@@ -38,19 +38,27 @@ namespace Homebrew {
      *
      * DynamicArray<T>::iterator class
      *
+     *     DynamicArray<T>::iterator(DynamicArray<T>& theParent, unsigned int index)
+     *     iterator& operator=(const iterator& rhs)
+     *     T& operator*()
+     *     iterator& operator++()
+     *     iterator operator++(int)
+     *     bool operator==(const iterator& it) const
+     *     bool operator!=(const iterator& it) const
+     *
      * DynamicArray<T> class
      *
-     * DynamicArray(const DynamicArray& from)
-     * DynamicArray& operator=(const DynamicArray& from)
-     * virtual ~DynamicArray()
+     *     DynamicArray(const DynamicArray& from)
+     *     DynamicArray& operator=(const DynamicArray& from)
+     *     virtual ~DynamicArray()
      *
-     * DynamicArray<T>::iterator begin(void)
-     * DynamicArray<T>::iterator end(void)
-     * T& operator[](unsigned int i)
-     * void append(T data)
+     *     DynamicArray<T>::iterator begin(void)
+     *     DynamicArray<T>::iterator end(void)
+     *     T& operator[](unsigned int i)
+     *     void append(T data)
      *
-     *	int size(void)
-	 *  int capacity(void)
+     *	   int size(void)
+	 *     int capacity(void)
      *
      */
 
@@ -84,8 +92,7 @@ public:
         }
 
         // Dereference operator
-        T& operator*()
-        {
+        T& operator*() {
         	return parent.array[currentIndex];
         }
 
@@ -154,19 +161,55 @@ public:
 		}
 	}
 
-	// Range counstructor
+	// Range constructor
 	// FIXME: Define and add range constructor support
 
 	// Copy constructor
 	DynamicArray(const DynamicArray& from) {
 
+		this->theSize = from.theSize;
+		this->theCapacity = from.theCapacity;
+
+		array = new T[from.theCapacity];
+
+		for (unsigned int i = 0; i < from.theSize; i++) {
+			array[i] = from.array[i];
+		}
 	}
 
-	// Assignment operator
+	// Copy assignment operator
 	DynamicArray& operator=(const DynamicArray& from) {
-		// Case 1: from.size < this.size
-		// Case 2: from.size == this.size
-		// Case 3: from.size > this.theSize
+
+		if (from.theSize <= this->theSize) {
+
+			// Case 1: from.theSize < this.theSize
+			// Case 2: from.theSize == this.theSize
+
+			// FIXME: Clear out / initialize array[] first??
+			for (unsigned int i = 0; i < from.theSize; i++) {
+				this->array[i] = from.array[i];
+			}
+		}
+		else {
+
+			// Case 3: from.size > this.theSize
+
+			// Allocate enough memory to hold new array
+			T* temp = new T[from.theCapacity];
+
+			// Copy over the data
+			for (unsigned int i = 0; i < from.theSize; i++) {
+				temp[i] = from.array[i];
+			}
+
+			// Free up the old memory
+			delete[] array;
+
+			// Assign new memory
+			array = temp;
+		}
+
+		return *this;
 	}
 
 	virtual ~DynamicArray() {
