@@ -32,6 +32,28 @@ using std::string;
 namespace Mjl {
 namespace Homebrew {
 
+    /*********************
+     * Table of contents *
+     *********************
+     *
+     * DynamicArray<T>::iterator class
+     *
+     * DynamicArray<T> class
+     *
+     * DynamicArray(const DynamicArray& from)
+     * DynamicArray& operator=(const DynamicArray& from)
+     * virtual ~DynamicArray()
+     *
+     * DynamicArray<T>::iterator begin(void)
+     * DynamicArray<T>::iterator end(void)
+     * T& operator[](unsigned int i)
+     * void append(T data)
+     *
+     *	int size(void)
+	 *  int capacity(void)
+     *
+     */
+
 template <typename T> class DynamicArray
 {
 public:
@@ -44,12 +66,12 @@ public:
 
         	ostringstream oss;
 
-            if (index <= theParent.size) {
+            if (index <= theParent.theSize) {
                 currentIndex = index;
             }
             else {
             	oss << "Attempted to create iterator to element "
-            	    << index << " but DynamicArray has size=" << theParent.size;
+            	    << index << " but DynamicArray has theSize=" << theParent.theSize;
                 throw std::out_of_range(string(oss.str()));
             }
         }
@@ -69,14 +91,14 @@ public:
 
         // Prefix increment operator (++c)
         iterator& operator++() {
-        	if (currentIndex < parent.size)
+        	if (currentIndex < parent.theSize)
         		currentIndex++;
         	return *this;
         }
 
         // Postfix increment operator (c++)
         iterator operator++(int) {
-        	if (currentIndex < parent.size)
+        	if (currentIndex < parent.theSize)
         		currentIndex++;
         	return *this;
         }
@@ -102,19 +124,19 @@ public:
     };
 
 
-	DynamicArray() : size(0), capacity(initialArrayCapacity) {
+	DynamicArray() : theSize(0), theCapacity(initialArrayCapacity) {
 		array = new T[initialArrayCapacity];
-		capacity = initialArrayCapacity; // FIXME: why is initializer list failing making this necessary?
+		theCapacity = initialArrayCapacity; // FIXME: why is initializer list failing making this necessary?
 	}
 
 	// Initialize count copies of data
-	DynamicArray(int count, const T& data) : array(nullptr), size(count), capacity(initialArrayCapacity) {
+	DynamicArray(int count, const T& data) : array(nullptr), theSize(count), theCapacity(initialArrayCapacity) {
 
 		// The number of bits in an int - the number of bits required to represent initialArrayCapacity = 8;
 		const unsigned int shiftLimit = std::numeric_limits<unsigned int>::digits - 4;
 
 		// Find next power of two that is >= count
-		unsigned int n = capacity;
+		unsigned int n = theCapacity;
 		unsigned int shifts = 0;
 
 		// The shift limit is used to avoid overflow
@@ -144,7 +166,7 @@ public:
 	DynamicArray& operator=(const DynamicArray& from) {
 		// Case 1: from.size < this.size
 		// Case 2: from.size == this.size
-		// Case 3: from.size > this.size
+		// Case 3: from.size > this.theSize
 	}
 
 	virtual ~DynamicArray() {
@@ -158,40 +180,46 @@ public:
 
     DynamicArray<T>::iterator end(void)
     {
-        return DynamicArray<T>::iterator(*this, size);
+        return DynamicArray<T>::iterator(*this, theSize);
     }
 
-	// FIXME: return copy by value, or copy by reference?
 	T& operator[](unsigned int i) {
 		return array[i];
-	}
-
-	void append(T data) {
-
-		if (size + 1 > capacity) {
-
-			// Expand the array if necessary
-			capacity *= 2;
-			T* oldArray = array;
-			array = new T[capacity];
-			for (unsigned int i = 0; i < size; i++) {
-				array[i] = oldArray[i];
-			}
-			delete[] oldArray;
-		}
-
-		array[size] = data;
-		size++;
 	}
 
 	// FIXME: Understand the point of separate const operator[]
 	//const int& operator[] const() ...
 
+	void append(T data) {
+
+		if (theSize + 1 > theCapacity) {
+
+			// Expand the array if necessary
+			theCapacity *= 2;
+			T* oldArray = array;
+			array = new T[theCapacity];
+			for (unsigned int i = 0; i < theSize; i++) {
+				array[i] = oldArray[i];
+			}
+			delete[] oldArray;
+		}
+
+		array[theSize] = data;
+		theSize++;
+	}
+
+	int size(void) {
+		return theSize;
+	}
+
+	int capacity(void) {
+		return theCapacity;
+	}
 
 private:
 	T* array;
-	unsigned int size;						// How many elements is the array holding
-	unsigned int capacity;					// How many elements can be held without resizing
+	unsigned int theSize;					// How many elements is the array holding
+	unsigned int theCapacity;					// How many elements can be held without resizing
 	const int initialArrayCapacity = 8;
 
 	// Constructors:
@@ -205,7 +233,7 @@ private:
 	// operator=
 
 	// size() - how many elements are present
-	// capacity() - how much memory is currently reserved
+	// theCapacity() - how much memory is currently reserved
 
 	// clear() - delete everything
 

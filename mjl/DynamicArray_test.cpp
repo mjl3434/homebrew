@@ -42,4 +42,9 @@ void runArrayTests(void)
         cout << *itr << "\n";
     }
 
+    DynamicArray<int> db(da);
+    DynamicArray<int> dc = da;
+
+
+
 }
