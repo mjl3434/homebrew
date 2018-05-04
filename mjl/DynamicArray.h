@@ -162,7 +162,11 @@ public:
 	}
 
 	// Range constructor
-	// FIXME: Define and add range constructor support
+	DynamicArray(DynamicArray<T>::iterator& start, DynamicArray<T>::iterator& end) {
+
+		// FIXME: Implement this
+	}
+
 
 	// Copy constructor
 	DynamicArray(const DynamicArray& from) {
@@ -215,6 +219,9 @@ public:
         return DynamicArray<T>::iterator(*this, theSize);
     }
 
+    // FIXME: this is read only,
+    //     what about writing to location?
+    //     what about gaps?
 	T& operator[](unsigned int i) {
 		return array[i];
 	}
