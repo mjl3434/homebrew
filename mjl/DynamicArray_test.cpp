@@ -60,5 +60,12 @@ void runArrayTests(void)
     	cout << *dcItr << "\n";
     }
 
+    // Test opeartor[]
+    dc[2]++;
+    for (dcItr = dc.begin(); dcItr != dc.end(); dcItr++) {
+    	cout << *dcItr << "\n";
+    }
+
+
 
 }

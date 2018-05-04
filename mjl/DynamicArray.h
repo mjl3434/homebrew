@@ -50,11 +50,13 @@ namespace Homebrew {
      *
      *     DynamicArray(const DynamicArray& from)
      *     DynamicArray& operator=(const DynamicArray& from)
+     *     DynamicArray(DynamicArray<T>::iterator& start, DynamicArray<T>::iterator& end)
      *     virtual ~DynamicArray()
      *
      *     DynamicArray<T>::iterator begin(void)
      *     DynamicArray<T>::iterator end(void)
      *     T& operator[](unsigned int i)
+     *     const T& operator[](unsigned int i) const
      *     void append(T data)
      *
      *	   int size(void)
@@ -65,6 +67,9 @@ namespace Homebrew {
 template <typename T> class DynamicArray
 {
 public:
+
+	// FIXME: Is this really the best way to get the range constructor to work?
+	friend class iterator;
 
     class iterator
     {
@@ -164,7 +169,14 @@ public:
 	// Range constructor
 	DynamicArray(DynamicArray<T>::iterator& start, DynamicArray<T>::iterator& end) {
 
-		// FIXME: Implement this
+		theSize = end.currentIndex - start.currentIndex + 1;
+		theCapacity = start.parent.capacity();
+
+		array = new T[size];
+
+		for (int i = 0; start != end; start++) {
+			array[i] = *start;
+		}
 	}
 
 
@@ -209,25 +221,21 @@ public:
 		delete array;
 	}
 
-    DynamicArray<T>::iterator begin(void)
-    {
+    DynamicArray<T>::iterator begin(void) {
         return DynamicArray<T>::iterator(*this, 0);
     }
 
-    DynamicArray<T>::iterator end(void)
-    {
+    DynamicArray<T>::iterator end(void) {
         return DynamicArray<T>::iterator(*this, theSize);
     }
 
-    // FIXME: this is read only,
-    //     what about writing to location?
-    //     what about gaps?
 	T& operator[](unsigned int i) {
 		return array[i];
 	}
 
-	// FIXME: Understand the point of separate const operator[]
-	//const int& operator[] const() ...
+	const T& operator[](unsigned int i) const {
+		return array[i];
+	}
 
 	void append(T data) {
 

@@ -8,8 +8,8 @@ The goals of this project are the following:
   are using the most efficient data structures for their situation.
   
   ToDo:
-  -- Finish DynamicArray (almost done)
   -- Delete sample RuleOfFiveExample class and implement rule of 5
+  -- Update test code to compare STL results to this library and programatically compare return true/false on tests
   -- Bidirectional iterators
   -- Doubly Linked List
   -- Hash Table
