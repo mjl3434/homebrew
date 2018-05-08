@@ -66,6 +66,8 @@ void runArrayTests(void)
     	cout << *dcItr << "\n";
     }
 
+    // Test range consturctor
+
 
 
 }

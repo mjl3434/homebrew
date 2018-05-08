@@ -49,7 +49,9 @@ namespace Homebrew {
      * DynamicArray<T> class
      *
      *     DynamicArray(const DynamicArray& from)
+     *     DynamicArray(DynamicArray&& from)
      *     DynamicArray& operator=(const DynamicArray& from)
+     *     DynamicArray& operator=(DynamicArray&& from)
      *     DynamicArray(DynamicArray<T>::iterator& start, DynamicArray<T>::iterator& end)
      *     virtual ~DynamicArray()
      *
@@ -58,9 +60,9 @@ namespace Homebrew {
      *     T& operator[](unsigned int i)
      *     const T& operator[](unsigned int i) const
      *     void append(T data)
-     *
      *	   int size(void)
 	 *     int capacity(void)
+	 *     void clear(void)
      *
      */
 
@@ -193,6 +195,16 @@ public:
 		}
 	}
 
+	// Move constructor
+	DynamicArray(DynamicArray&& from) noexcept {
+
+		theSize = std::move(from.theSize);
+		theCapacity = std::move(from.theCapacity);
+
+		array = from.array;
+		from.array = nullptr;
+	}
+
 	// Copy assignment operator
 	DynamicArray& operator=(const DynamicArray& from) {
 
@@ -213,6 +225,23 @@ public:
 
 		// Assign new memory
 		array = temp;
+
+		return *this;
+	}
+
+	// Move assignment operator
+	DynamicArray& operator=(DynamicArray&& from) noexcept {
+
+		if (this == &from) {
+			return *from;
+		}
+
+		theSize = std::move(from.theSize);
+		theCapacity = std::move(from.theCapacity);
+
+		delete[] array;
+		array = from.array;
+		from.array = nullptr;
 
 		return *this;
 	}
@@ -263,32 +292,16 @@ public:
 		return theCapacity;
 	}
 
+	void clear(void) {
+		delete[] array;
+		array = new T[theCapacity];
+	}
+
 private:
 	T* array;
-	unsigned int theSize;					// How many elements is the array holding
+	unsigned int theSize;						// How many elements is the array holding
 	unsigned int theCapacity;					// How many elements can be held without resizing
 	static const int initialArrayCapacity = 8;
-
-	// Constructors:
-	// 1. Empty array
-	// 2. Intialized to N copies of object
-	// 3. Copy constructor
-	// 4. iterator begin, iterator end
-
-	// operator[] - for read acess
-	// operator[] - for write access
-	// operator=
-
-	// size() - how many elements are present
-	// theCapacity() - how much memory is currently reserved
-
-	// clear() - delete everything
-
-	// iterators:
-	// .begin
-	// .end
-	// ++
-
 };
 
 } // end namespace Homebrew

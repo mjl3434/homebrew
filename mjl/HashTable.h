@@ -19,28 +19,59 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef HASHTABLE_H_
-#define HASHTABLE_H_
+#ifndef HASHTABLE_H
+#define HASHTABLE_H
 
 namespace mjl {
 namespace homebrew {
 
-class HashTable {
+template <typename K, typename V> class HashTable {
 public:
+
+	// Default constructor
 	HashTable();
-	//T& operator[]( const T& key );
+
+	// Copy constructor
+	HashTable(const HashTable& from) {
+
+	}
+
+	// Move constructor
+	HashTable(HashTable&& from) noexcept {
+
+	}
+
+	// Assignment operator
+	HashTable& operator=(const HashTable& from) {
+
+	}
+
+	// Move assignment operator
+	HashTable& operator(HashTable&& from) noexcept {
+
+	}
+
+
 	virtual ~HashTable();
 
+	V& operator[](const K& key) {
+
+	}
+
+private:
+
+	static const unsigned int initialHashTableSize = 11;
+	static const unsigned int collisionsResizeThreshold = 3;
 
 	// insert value indexed by key
 	// lookup the value indexed by key
 	// remove the value indexed by key
 
-	// colisions
+	// collisions
 
 	// Mathematically speaking, at what point is it cheaper to re-key/index
-	// the entire list in order to avoid colissions, compared to the cost of
-	// another operation at the colission? (It seems like fixing the hash table
+	// the entire list in order to avoid collisions, compared to the cost of
+	// another operation at the collision? (It seems like fixing the hash table
 	// might always be more expensive, so maybe you have to think about what
 	// you're trying to optimize for? Average operation?
 };
@@ -48,4 +79,4 @@ public:
 } /* namespace homebrew */
 } /* namespace mjl */
 
-#endif /* HASHTABLE_H_ */
+#endif /* HASHTABLE_H */

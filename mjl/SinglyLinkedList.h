@@ -129,7 +129,16 @@ public:
 		theSize = toCopy.size();
 	}
 
-	// Assignment operator (2/5)
+	// Move constructor (2/5)
+	SinglyLinkedList(SinglyLinkedList&& from) {
+		theSize = std::move(from.theSize);
+		head = from.head;
+		from.head = nullptr;
+		tail = from.tail;
+		from.tail = nullptr;
+	}
+
+	// Assignment operator (3/5)
 	SinglyLinkedList& operator=(const SinglyLinkedList& source)
 	{
 		Node* srcPtr = source.head;
@@ -186,11 +195,16 @@ public:
 		return *this;
 	}
 
-	// Move constructor (3/5)
-	//SinglyLinkedList(SinglyLinkedList&&);
-
 	// Move assignment operator (4/5)
-	//SinglyLinkedList& operator=(SinglyLinkedList&&);
+	SinglyLinkedList& operator=(SinglyLinkedList&& from) {
+		theSize = std::move(from.theSize);
+		head = from.head;
+		from.head = nullptr;
+		tail = from.tail;
+		from.tail = nullptr;
+
+		return *this;
+	}
 
 	// Destructor (5/5)
 	virtual ~SinglyLinkedList()
