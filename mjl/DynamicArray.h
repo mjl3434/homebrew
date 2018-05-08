@@ -200,9 +200,7 @@ public:
 
 		theSize = std::move(from.theSize);
 		theCapacity = std::move(from.theCapacity);
-
-		array = from.array;
-		from.array = nullptr;
+		array = std::move(from.array);
 	}
 
 	// Copy assignment operator

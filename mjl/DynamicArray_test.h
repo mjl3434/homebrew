@@ -22,6 +22,6 @@
 #ifndef ARRAY_TEST_H
 #define ARRAY_TEST_H
 
-void runArrayTests(void);
+bool runArrayTests(void);
 
 #endif // ARRAY_TEST_H
