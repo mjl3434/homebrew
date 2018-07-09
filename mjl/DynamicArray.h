@@ -144,7 +144,7 @@ public:
 	}
 
 	// Initialize count copies of data
-	DynamicArray(int count, const T& data) : array(nullptr), theSize(count), theCapacity(initialArrayCapacity) {
+	DynamicArray(unsigned int count, const T& data) : array(nullptr), theSize(count), theCapacity(initialArrayCapacity) {
 
 		// The number of bits in an int - the number of bits required to represent initialArrayCapacity = 8;
 		const unsigned int shiftLimit = std::numeric_limits<unsigned int>::digits - 4;
@@ -163,7 +163,7 @@ public:
 		array = new T[n];
 
 		 // Copy data to newly allocated objects (object T's copy assignment operator is used)
-		for(int i = 0; i < count; i++) {
+		for(unsigned int i = 0; i < count; i++) {
 			array[i] = data;
 		}
 	}
@@ -198,9 +198,10 @@ public:
 	// Move constructor
 	DynamicArray(DynamicArray&& from) noexcept {
 
-		theSize = std::move(from.theSize);
-		theCapacity = std::move(from.theCapacity);
-		array = std::move(from.array);
+		theSize = from.theSize;
+		theCapacity = from.theCapacity;
+		array = from.array;
+		from.array = nullptr;
 	}
 
 	// Copy assignment operator
@@ -234,8 +235,8 @@ public:
 			return *from;
 		}
 
-		theSize = std::move(from.theSize);
-		theCapacity = std::move(from.theCapacity);
+		theSize = from.theSize;
+		theCapacity = from.theCapacity;
 
 		delete[] array;
 		array = from.array;
@@ -282,11 +283,11 @@ public:
 		theSize++;
 	}
 
-	int size(void) {
+	unsigned int size(void) {
 		return theSize;
 	}
 
-	int capacity(void) {
+	unsigned int capacity(void) {
 		return theCapacity;
 	}
 

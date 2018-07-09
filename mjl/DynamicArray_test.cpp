@@ -46,17 +46,17 @@ bool runArrayTests(void)
     }
 
     // Test count copies of data constructor
-    DynamicArray<int> db(x, &y);
-    vector<int> vb(x, &y);
+    DynamicArray<int> db(x, y);
+    vector<int> vb(x, y);
     if (db.size() != vb.size()) {
     	cerr << "Sizes of db and vb don't match.\n";
     	return false;
     }
-    if (db.size() != x) {
+    if (db.size() != (unsigned int)x) {
     	cerr << "db not initialized with " << x << " elements.\n";
     	return false;
     }
-    for (int i = 0; i < vb.size(); i++) {
+    for (unsigned int i = 0; i < vb.size(); i++) {
     	if (db[i] != vb[i]) {
     		cerr << "Element " << i << " in db and vb does not match, but they should all be copies.\n";
     		return false;

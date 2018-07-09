@@ -104,14 +104,14 @@ bool runSinglyLinkedListTests()
 	cout << "Size of aaa: " << aaa.size() << "\n";
 
 	cout << "Assigning bbb (";
-			for (itr = bbb.begin(); itr != bbb.end(); itr++) {
-				cout << *itr << " ";
-			}
-			cout << ") to aaa (";
-			for (itr = aaa.begin(); itr != aaa.end(); itr++) {
-				cout << *itr << " ";
-			}
-			cout << "), then iterating over aaa.\n";
+	for (itr = bbb.begin(); itr != bbb.end(); itr++) {
+	    cout << *itr << " ";
+    }
+	cout << ") to aaa (";
+	for (itr = aaa.begin(); itr != aaa.end(); itr++) {
+        cout << *itr << " ";
+    }
+    cout << "), then iterating over aaa.\n";
 
 	aaa = bbb;
 	for (itr = aaa.begin(); itr != aaa.end(); itr++) {
@@ -159,7 +159,7 @@ bool runSinglyLinkedListTests()
 	// pushBack()
 	// popFront()
 
-	// Not implemented:
+	// Not yet tested:
 
 	//SinglyLinkedList(SinglyLinkedList&&);
 	//SinglyLinkedList& operator=(SinglyLinkedList&&);

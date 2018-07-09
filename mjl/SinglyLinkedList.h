@@ -43,7 +43,7 @@ namespace Homebrew {
 	 * SinglyLinkedList<T>::iterator class
 	 *     - operator!=()
 	 *     - operator++()
-	 *     - operator*(
+	 *     - operator*()
 	 *
 	 * Stack<T> class
 	 *     - push()
@@ -131,7 +131,7 @@ public:
 
 	// Move constructor (2/5)
 	SinglyLinkedList(SinglyLinkedList&& from) {
-		theSize = std::move(from.theSize);
+		theSize = from.theSize;
 		head = from.head;
 		from.head = nullptr;
 		tail = from.tail;
@@ -197,7 +197,16 @@ public:
 
 	// Move assignment operator (4/5)
 	SinglyLinkedList& operator=(SinglyLinkedList&& from) {
-		theSize = std::move(from.theSize);
+
+		// Delete old list
+		Node* current = head;
+		while (current != nullptr) {
+			Node* deleteMe = current;
+			current = current->next;
+			delete deleteMe;
+		}
+
+		theSize = from.theSize;
 		head = from.head;
 		from.head = nullptr;
 		tail = from.tail;
