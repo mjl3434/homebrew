@@ -25,10 +25,43 @@
 namespace mjl {
 namespace homebrew {
 
-class RedBlackTree {
+template <typename K, typename V> class RedBlackTree
+{
 public:
+
+	// Constructor
 	RedBlackTree();
+
+	// Copy Constructor
+	RedBlackTree(const RedBlackTree& from);
+
+	// Move Constructor
+	RedBlackTree(RedBlackTree&& from);
+
+	// Assignment Operator
+	RedBlackTree& operator=(const RedBlackTree& from);
+
+	// Move Assignment Operator
+	RedBlackTree& operator=(RedBlackTree&& from);
+
+	// Destructor
 	virtual ~RedBlackTree();
+
+	// By design do not support the operator[]. While the syntax is cool, the
+	// usage here is not intuitive which makes it prone to developer error.
+	//
+	// -- Is this fundamentally a search, or an insert function? Both?
+	// -- What is returned if noting is stored under that key?
+	// -- What happens if there is something already there?
+	//
+	// V& operator[](const K& key);
+
+	V& find(const K& key);
+
+	// will delete any element that is already there and insert new one
+	void insert(const K& key, const V& value);
+
+	V& remove(const K& key);
 };
 
 } /* namespace homebrew */

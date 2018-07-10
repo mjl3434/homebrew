@@ -51,7 +51,7 @@ public:
 
 	}
 
-
+	// Destructor
 	virtual ~HashTable();
 
 	V& operator[](const K& key) {
