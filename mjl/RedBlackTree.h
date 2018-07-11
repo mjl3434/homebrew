@@ -25,12 +25,31 @@
 namespace mjl {
 namespace homebrew {
 
+/**
+ * Red-Black trees maintain the following rules:
+ * 1. A red node can only have black nodes as children
+ * 2. The number of black nodes along any path in a red-black tree must be the same.
+ * 3. The root node must be black, and leaves are black
+ */
 template <typename K, typename V> class RedBlackTree
 {
 public:
 
+	static const int RED = 0;
+	static const int BLACK = 1;
+
+	class Node
+	{
+	public:
+		Node(V dataPassedByValue) : color(BLACK), data(dataPassedByValue), left(nullptr), right(nullptr) { }
+		int color;
+		V data;
+		Node* left;
+		Node* right;
+	};
+
 	// Constructor
-	RedBlackTree();
+	RedBlackTree() : root(nullptr) { }
 
 	// Copy Constructor
 	RedBlackTree(const RedBlackTree& from);
@@ -59,9 +78,31 @@ public:
 	V& find(const K& key);
 
 	// will delete any element that is already there and insert new one
-	void insert(const K& key, const V& value);
+	void insert(const K& key, const V& value) {
+
+	}
 
 	V& remove(const K& key);
+
+private:
+
+	bool isRed(Node* node) {
+		if (node != nullptr && node->color == RED)
+			return true;
+		else
+			return false;
+	}
+
+	bool isBlack(Node* node) {
+		if (node != nullptr && node->color == BLACK)
+			return true;
+		else
+			return false;
+	}
+
+	//Node* singleRotation(Node* )
+
+	Node* root;
 };
 
 } /* namespace homebrew */
