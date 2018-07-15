@@ -19,19 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "RedBlackTree.h"
+#ifndef HASHTABLE_TEST_H
+#define HASHTABLE_TEST_H
 
-namespace mjl {
-namespace homebrew {
+bool runHashTableTests(void);
 
-RedBlackTree::RedBlackTree() {
-	// TODO Auto-generated constructor stub
-
-}
-
-RedBlackTree::~RedBlackTree() {
-	// TODO Auto-generated destructor stub
-}
-
-} /* namespace homebrew */
-} /* namespace mjl */
+#endif // HASHTABLE_TEST_H

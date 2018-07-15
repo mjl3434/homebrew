@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Marcus Larwill
+ * Copyright (c) 2018 Marcus Larwill
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 #include "Stack.h"
 
 using namespace std;
-using namespace Mjl::Homebrew;
+using namespace mjl::homebrew;
 
 
 void runStackTests(void)

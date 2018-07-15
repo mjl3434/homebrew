@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Marcus Larwill
+ * Copyright (c) 2018 Marcus Larwill
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,8 +29,8 @@
 using std::ostringstream;
 using std::string;
 
-namespace Mjl {
-namespace Homebrew {
+namespace mjl {
+namespace homebrew {
 
     /*********************
      * Table of contents *
@@ -303,7 +303,7 @@ private:
 	static const int initialArrayCapacity = 8;
 };
 
-} // end namespace Homebrew
-} // end namespace Mjl
+} // end namespace homebrew
+} // end namespace mjl
 
 #endif // DYNAMIC_ARRAY_H

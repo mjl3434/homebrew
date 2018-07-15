@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Marcus Larwill
+ * Copyright (c) 2018 Marcus Larwill
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -68,7 +68,6 @@ public:
 
 	// By design do not support the operator[]. While the syntax is cool, the
 	// usage here is not intuitive which makes it prone to developer error.
-	//
 	// -- Is this fundamentally a search, or an insert function? Both?
 	// -- What is returned if noting is stored under that key?
 	// -- What happens if there is something already there?

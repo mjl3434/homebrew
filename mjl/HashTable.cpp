@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Marcus Larwill
+ * Copyright (c) 2018 Marcus Larwill
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,15 +23,6 @@
 
 namespace mjl {
 namespace homebrew {
-
-HashTable::HashTable() {
-	// TODO Auto-generated constructor stub
-
-}
-
-HashTable::~HashTable() {
-	// TODO Auto-generated destructor stub
-}
 
 } /* namespace homebrew */
 } /* namespace mjl */

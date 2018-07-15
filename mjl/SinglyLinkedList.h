@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Marcus Larwill
+ * Copyright (c) 2018 Marcus Larwill
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
 #ifndef SINGLYLINKEDLIST_H
 #define SINGLYLINKEDLIST_H
 
-namespace Mjl {
-namespace Homebrew {
+namespace mjl {
+namespace homebrew {
 
 	/*********************
 	 * Table of contents *
@@ -373,7 +373,7 @@ private:
 	SinglyLinkedList<T> list;
 };
 
-}	// end namespace Homebrew
-}	// end namespace Mjl
+}	// end namespace homebrew
+}	// end namespace mjl
 
 #endif // SINGLYLINKEDLIST_H

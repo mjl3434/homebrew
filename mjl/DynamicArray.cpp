@@ -21,10 +21,10 @@
  */
 #include "DynamicArray.h"
 
-namespace Mjl {
-namespace Homebrew {
+namespace mjl {
+namespace homebrew {
 
 	// Template class implementation is in .h
 
-}	// end namespace Homebrew
-}	// end namespace Mjl
+}	// end namespace homebrew
+}	// end namespace mjl

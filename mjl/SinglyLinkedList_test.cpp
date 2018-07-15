@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Marcus Larwill
+ * Copyright (c) 2018 Marcus Larwill
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
 #include <iostream>
 
 using namespace std;
-using namespace Mjl::Homebrew;
+using namespace mjl::homebrew;
 
 bool runSinglyLinkedListTests()
 {
@@ -78,7 +78,7 @@ bool runSinglyLinkedListTests()
 
 	// Call copy constructor
 	cout << "Constructing bbb as a copy of aaa.\n";
-	Mjl::Homebrew::SinglyLinkedList<int> bbb(aaa);
+	mjl::homebrew::SinglyLinkedList<int> bbb(aaa);
 	for (itr = bbb.begin(); itr != bbb.end(); itr++) {
 		cout << *itr << " ";
 	}

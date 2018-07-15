@@ -12,7 +12,9 @@ OBJECTS=\
 	Queue_test.o \
 	SinglyLinkedList.o \
 	SinglyLinkedList_test.o \
-	Stack_test.o
+	Stack_test.o \
+	HashTable.o \
+	HashTable_test.o
 
 all: $(PROGRAM_NAME)
 
@@ -21,22 +23,28 @@ $(PROGRAM_NAME): $(OBJECTS)
 
 main.o: main.cpp
 	$(GXX) $(CFLAGS) -c main.cpp
-	
+
+DynamicArray.o: DynamicArray.cpp DynamicArray.h
+	$(GXX) $(CFLAGS) -c DynamicArray.cpp
+
+HashTable.o: HashTable.cpp HashTable.h
+	$(GXX) $(CFLAGS) -c HashTable.cpp
+
 SinglyLinkedList.o: SinglyLinkedList.cpp SinglyLinkedList.h
 	$(GXX) $(CFLAGS) -c SinglyLinkedList.cpp
 
-SinglyLinkedList_test.o: SinglyLinkedList_test.cpp
+DynamicArray_test.o: DynamicArray_test.cpp DynamicArray.o
+	$(GXX) $(CFLAGS) -c DynamicArray_test.cpp
+	
+HashTable_test.o: HashTable_test.cpp HashTable.o
+	$(GXX) $(CFLAGS) -c HashTable.cpp
+	
+Queue_test.o: Queue_test.cpp SinglyLinkedList.o
+	$(GXX) $(CFLAGS) -c Queue_test.cpp
+
+SinglyLinkedList_test.o: SinglyLinkedList_test.cpp SinglyLinkedList.o
 	$(GXX) $(CFLAGS) -c SinglyLinkedList_test.cpp
 
-Stack_test.o: Stack_test.cpp
+Stack_test.o: Stack_test.cpp SinglyLinkedList.o
 	$(GXX) $(CFLAGS) -c Stack_test.cpp
-
-Queue_test.o: Queue_test.cpp
-	$(GXX) $(CFLAGS) -c Queue_test.cpp
-	
-DynamicArray.o: DynamicArray.cpp DynamicArray.h
-	$(GXX) $(CFLAGS) -c DynamicArray.cpp
-	
-DynamicArray_test.o: DynamicArray_test.cpp
-	$(GXX) $(CFLAGS) -c DynamicArray_test.cpp
 
