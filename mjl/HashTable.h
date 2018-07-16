@@ -22,14 +22,24 @@
 #ifndef HASHTABLE_H
 #define HASHTABLE_H
 
+#include <exception>
+
 namespace mjl {
 namespace homebrew {
 
-template <typename VV> struct Bucket {
+class KeyNotPresent : public exception
+{
+    const char* what() const throw () {
+        return "Key not present";
+    }
+}
+
+template <typename K, typename V> struct Bucket {
 public:
-	Bucket(const VV& v) : value(v), next(nullptr) { }
-	VV value;
-	struct Bucket<VV>* next;
+	Bucket(void) : key(nullptr), value(nullptr), next(nullptr) { }
+	K* key;
+	V* value;
+	struct Bucket<K, V>* next;
 };
 
 // This is a generic implementation of a hash function
@@ -116,11 +126,13 @@ template <typename K, typename V, typename HashGenerator = DefaultHashGenerator<
 public:
 
 	// Default constructor
-	HashTable() : hashTableSize(initialHashTableSize), table(new Bucket<V>[initialHashTableSize]) { }
+	HashTable() : hashTableSize(initialHashTableSize), size(0), table(new Bucket<K, V>[initialHashTableSize]) { }
 
 	// Copy constructor
-	HashTable(const HashTable& from) {
+	HashTable(const HashTable& from)
+	    : hashTableSize(from.hashTableSize), size(from.size), table(new Bucket<K, V>[from.hashTableSize]) {
 
+	    // FIXME: Copy data over from each bucket.
 	}
 
 	// Move constructor
@@ -141,22 +153,82 @@ public:
 	// Destructor
 	virtual ~HashTable();
 
-	// By design do not support the operator[]. While the syntax is cool, the
-	// usage here is not intuitive which makes it prone to developer error.
-	// -- Is this fundamentally a search, or an insert function? Both?
-	// -- What is returned if noting is stored under that key?
-	// -- What happens if there is something already there?
-	//
-	// V& operator[](const K& key);
+	V& get(const K& key) {
 
-	V& get(const K& key);
+	    unsigned int index = selectBucket(key);
+	    Bucket<K, V>* current = nullptr;
 
-	// will delete any element that is already there and insert new one
-	void insert(const K& key, const V& value) {
+	    for (current = table[index]; current != nullptr; current = current->next) {
+	        if (current->key == key) {
+	            return current->value;
+	        }
+	    }
 
+	    if (current == nullptr) {
+	        throw new KeyNotPresent();
+	    }
 	}
 
-	V& remove(const K& key);
+	// Will delete any element that is already there and insert new one
+	void insert(const K& key, const V& value) {
+
+	    unsigned int index = selectBucket(key);
+	    unsigned int collisions = 0;
+	    Bucket<K, V>* current = nullptr;
+	    bool inserted = false;
+
+	    // Traverse the hash table list beginning to end
+	    for (current = table[index]; current->next != nullptr; current = current->next, collisions++) {
+
+	        if (current->key == nullptr) {
+	            // If the current bucket is empty simply insert a new copy of the value
+	            current->value = new V(value);
+	            inserted = true;
+	            break;
+	        }
+	        else if (current->key == key) {
+	            // Otherwise if the bucket is full and we have a matching key. Delete
+	            // the value there and replace it with a copy of the new value.
+	            delete current->value;
+	            current->value = new V(value);
+	            inserted = true;
+	            break;
+	        }
+	    }
+
+        // We have traversed the whole list but did not find a matching key, so insert
+        // at the end of the list.
+	    if (inserted == false) {
+
+	        //if (collisions < collisionResizeThreshold) {
+	        if (true) {
+	            Bucket<K, V>* additionalBucket = new Bucket<K, V>;
+	            additionalBucket->key = new K(key);
+	            additionalBucket->value = new V(value);
+	            current->next = additionalBucket;
+	        }
+	        else {
+	            rehash();
+	            insert(key, value);
+	        }
+	    }
+	}
+
+	V& remove(const K& key) {
+
+	    // FIXME: Implement this:
+
+	    /*
+        unsigned int index = selectBucket(key);
+        Bucket<K, V>* current = nullptr;
+
+        for (current = table[index]; current != nullptr; current = current->next) {
+            if (current->key == key) {
+                return current->value;
+            }
+        }
+        *?
+	}
 
 private:
 
@@ -167,14 +239,15 @@ private:
 		return HashGenerator::chooseBucket(k) % hashTableSize;
 	}
 
-	static const unsigned int initialHashTableSize = 32;
-	static const unsigned int collisionsResizeThreshold = 3;
-	unsigned int hashTableSize;
-	Bucket<V>* table;
+	void rehash(void) {
 
-	// insert value indexed by key
-	// lookup the value indexed by key
-	// remove the value indexed by key
+	}
+
+	static const unsigned int initialHashTableSize = 32;
+	static const unsigned int collisionResizeThreshold = 3;
+	unsigned int hashTableSize;
+	unsigned int size;
+	Bucket<K, V>* table;
 
 	// collisions
 
