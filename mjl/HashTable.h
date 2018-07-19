@@ -133,25 +133,62 @@ public:
 	    : hashTableSize(from.hashTableSize), size(from.size), table(new Bucket<K, V>[from.hashTableSize]) {
 
 	    // FIXME: Copy data over from each bucket.
+
+	    for (unsigned int i = 0; i < from.hashTableSize; i++) {
+
+	        Bucket<K, V>* current = from.table[i];
+
+	        /*
+	        while (current != nullptr) {
+
+	            // If the bucket is full copy the data over
+	            if (current->key != nullptr) {
+	                table[i]->key = new K(current->key);
+	                table[i]->value = new V(current->value);
+	            }
+
+	            current = current->next;
+	        }
+	        */
+	    }
 	}
 
 	// Move constructor
 	HashTable(HashTable&& from) noexcept {
 
+	    hashTableSize = from.hashTableSize;
+	    size = from.size;
+	    table = from.table;
+	    from.table = nullptr;
 	}
+
 
 	// Assignment operator
 	HashTable& operator=(const HashTable& from) {
 
+	    commonDelete();
+
+
+	    // FIXME: Write a common copy for copy constructor, this, and possibly rehash???
 	}
 
 	// Move assignment operator
 	HashTable& operator=(HashTable&& from) noexcept {
 
+	    commonDelete();
+
+	    hashTableSize = from.hashTableSize;
+	    size = from.size;
+	    table = from.table;
+	    from.table = nullptr;
+
+	    return *this;
 	}
 
 	// Destructor
-	virtual ~HashTable();
+	virtual ~HashTable() {
+	    commonDelete();
+	}
 
 	V& get(const K& key) {
 
@@ -215,6 +252,9 @@ public:
 	            insert(key, value);
 	        }
 	    }
+
+	    // Keep track of how many elements are stored
+	    size++;
 	}
 
 	// FIXME: Is it better to return bool (success/failure) or void?
@@ -257,11 +297,42 @@ public:
             current = current->next;
         }
 
+	    // Keep track of how many elements are stored
+        size--;
+
         // Construct and return a copy of the element removed
         return retval;
 	}
 
 private:
+
+	void commonDelete(void) {
+
+	    for (unsigned int i = 0; i < hashTableSize; i++) {
+
+	        Bucket<K, V>* temp = nullptr;
+	        Bucket<K, V>* current = table[i];
+
+	        while (current != nullptr) {
+
+	            temp = current->next;
+
+	            // Delete the data inside the bucket
+	            delete current->key;
+	            delete current->value;
+
+	            // Then delete the bucket itself, unless it's the first bucket which must be
+	            // deleted using delete[]
+	            if (current != table[i])
+	                delete current;
+
+	            current = temp;
+	        }
+	    }
+
+	    if (table != nullptr)
+	        delete[] table;
+	}
 
 	/**
 	 * Use the default hashing function, or the user-defined version.
