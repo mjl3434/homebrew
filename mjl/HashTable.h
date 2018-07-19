@@ -34,16 +34,16 @@ class KeyNotPresent : public exception
     }
 }
 
-template <typename K, typename V> struct Bucket {
+template <typename K1, typename VV> struct Bucket {
 public:
 	Bucket(void) : key(nullptr), value(nullptr), next(nullptr) { }
-	K* key;
-	V* value;
-	struct Bucket<K, V>* next;
+	K1* key;
+	VV* value;
+	struct Bucket<K1, VV>* next;
 };
 
 // This is a generic implementation of a hash function
-template <typename KK> class DefaultHashGenerator
+template <typename K2> class DefaultHashGenerator
 {
 	static const unsigned int THRESHOLD = 32;
 
@@ -65,7 +65,7 @@ template <typename KK> class DefaultHashGenerator
 	 * from the chooseBucket function will be divided by the hash table size,
 	 * and the reminder will be used as an index into the table.
 	 */
-	static unsigned int chooseBucket(const KK& k)
+	static unsigned int chooseBucket(const K2& k)
 	{
 		unsigned int sum = 0;
 		unsigned char* data = &k;
@@ -182,6 +182,7 @@ public:
 
 	        if (current->key == nullptr) {
 	            // If the current bucket is empty simply insert a new copy of the value
+	            current->key = new K(key);
 	            current->value = new V(value);
 	            inserted = true;
 	            break;
@@ -189,7 +190,9 @@ public:
 	        else if (current->key == key) {
 	            // Otherwise if the bucket is full and we have a matching key. Delete
 	            // the value there and replace it with a copy of the new value.
+	            delete current->key;
 	            delete current->value;
+	            current->key = new K(key);
 	            current->value = new V(value);
 	            inserted = true;
 	            break;
@@ -214,20 +217,48 @@ public:
 	    }
 	}
 
+	// FIXME: Is it better to return bool (success/failure) or void?
 	V& remove(const K& key) {
 
-	    // FIXME: Implement this:
+	    // Walk down the list from the front, searching for a matching key. When we find a match
+	    // delete the data and update the list. Save temporary copy of the next pointer before
+	    // traversing it so we can patch the list together properly.
 
-	    /*
         unsigned int index = selectBucket(key);
         Bucket<K, V>* current = nullptr;
+        Bucket<K, V>* prev = nullptr;
+        V retval;
 
-        for (current = table[index]; current != nullptr; current = current->next) {
+        current = table[index];
+        prev = table[index];
+
+        while (current != nullptr) {
+
+            // We found the value we were looking for
             if (current->key == key) {
-                return current->value;
+
+                // Save a copy to return
+                retval = current->value;
+
+                // Delete the data
+                delete current->key;
+                delete current->value;
+
+                // If we are not at the front of the list delete the Bucket too
+                if (current != prev) {
+                    Bucket<K, V>* temp = current;
+                    prev->next = current->next;
+                    delete temp;
+                }
             }
+
+            // Advance to next bucket in list
+            prev = current;
+            current = current->next;
         }
-        *?
+
+        // Construct and return a copy of the element removed
+        return retval;
 	}
 
 private:
