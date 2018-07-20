@@ -34,12 +34,14 @@ class KeyNotPresent : public exception
     }
 }
 
-template <typename K1, typename VV> struct Bucket {
+template <typename K1, typename V1> struct Bucket {
 public:
-	Bucket(void) : key(nullptr), value(nullptr), next(nullptr) { }
+	Bucket(void) : key(nullptr), value(nullptr), next(nullptr) {}
+	Bucket(const K1& theKey, const V1& theValue)
+	    : key(new K1(theKey)), value(new V1(theValue)), next(nullptr) {}
 	K1* key;
-	VV* value;
-	struct Bucket<K1, VV>* next;
+	V1* value;
+	struct Bucket<K1, V1>* next;
 };
 
 // This is a generic implementation of a hash function
@@ -312,10 +314,7 @@ private:
 	                        // Do nothing, simply advancing to the end of the list.
 	                    }
 
-	                    // FIXME: Is it better to implement a Bucket constructor?
-	                    toCurrent->next = new Bucket<K, V>();
-	                    toCurrent->next->key = new K(fromCurrent->key);
-	                    toCurrent->next->value = new V(fromCurrent->value);
+	                    toCurrent->next = new Bucket<K, V>(from->key, from->value);
 	                }
 	            }
 	            fromCurrent = fromCurrent->next;
