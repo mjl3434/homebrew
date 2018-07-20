@@ -132,25 +132,7 @@ public:
 	HashTable(const HashTable& from)
 	    : hashTableSize(from.hashTableSize), size(from.size), table(new Bucket<K, V>[from.hashTableSize]) {
 
-	    // FIXME: Copy data over from each bucket.
-
-	    for (unsigned int i = 0; i < from.hashTableSize; i++) {
-
-	        Bucket<K, V>* current = from.table[i];
-
-	        /*
-	        while (current != nullptr) {
-
-	            // If the bucket is full copy the data over
-	            if (current->key != nullptr) {
-	                table[i]->key = new K(current->key);
-	                table[i]->value = new V(current->value);
-	            }
-
-	            current = current->next;
-	        }
-	        */
-	    }
+	    commonCopy(this, from);
 	}
 
 	// Move constructor
@@ -165,11 +147,10 @@ public:
 
 	// Assignment operator
 	HashTable& operator=(const HashTable& from) {
-
 	    commonDelete();
-
-
-	    // FIXME: Write a common copy for copy constructor, this, and possibly rehash???
+	    table = new Bucket<K, V>[from.hashTableSize];
+	    commonCopy(this, from);
+	    return *this;
 	}
 
 	// Move assignment operator
@@ -180,6 +161,7 @@ public:
 	    hashTableSize = from.hashTableSize;
 	    size = from.size;
 	    table = from.table;
+
 	    from.table = nullptr;
 
 	    return *this;
@@ -305,6 +287,43 @@ public:
 	}
 
 private:
+
+	void commonCopy(HashTable& to, const HashTable& from) {
+
+	    for (unsigned int i = 0; i < from.hashTableSize; i++) {
+
+	        Bucket<K, V>* fromCurrent = from.table[i];
+
+	        while (fromCurrent != nullptr) {
+
+	            // If the bucket is full copy the data over
+	            if (fromCurrent->key != nullptr) {
+
+	                if (to.table[i]->key == nullptr) {
+	                    // If the current bucket is empty simply copy the data
+	                    to.table[i]->key = new K(fromCurrent->key);
+	                    to.table[i]->value = new V(fromCurrent->value);
+	                }
+	                else {
+	                    // Otherwise go to the end of the list, allocate and append another bucket
+	                    // then fill the bucket.
+	                    Bucket<K, V>* toCurrent = nullptr;
+	                    for (toCurrent = to.table[i]; toCurrent->next != nullptr; toCurrent = toCurrent->next) {
+	                        // Do nothing, simply advancing to the end of the list.
+	                    }
+
+	                    // FIXME: Is it better to implement a Bucket constructor?
+	                    toCurrent->next = new Bucket<K, V>();
+	                    toCurrent->next->key = new K(fromCurrent->key);
+	                    toCurrent->next->value = new V(fromCurrent->value);
+	                }
+	            }
+	            fromCurrent = fromCurrent->next;
+	        }
+	    }
+
+	    to.size = from.size;
+	}
 
 	void commonDelete(void) {
 
