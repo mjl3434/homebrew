@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 #include "DynamicArray_test.h"
+#include "HashTable_test.h"
 #include "SinglyLinkedList_test.h"
 #include "Stack_test.h"
 #include "Queue_test.h"
@@ -29,7 +30,6 @@ int main()
 	runSinglyLinkedListTests();
 	runStackTests();
 	runQueueTests();
-
 	runArrayTests();
 	runHashTableTests();
 

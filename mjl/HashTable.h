@@ -22,30 +22,24 @@
 #ifndef HASHTABLE_H
 #define HASHTABLE_H
 
-#include <exception>
+//#include <exception>
+#include <stdexcept>
 
 namespace mjl {
 namespace homebrew {
 
-class KeyNotPresent : public exception
-{
-    const char* what() const throw () {
-        return "Key not present";
-    }
-}
-
-template <typename K1, typename V1> struct Bucket {
+template <typename K, typename V> struct Bucket {
 public:
 	Bucket(void) : key(nullptr), value(nullptr), next(nullptr) {}
-	Bucket(const K1& theKey, const V1& theValue)
-	    : key(new K1(theKey)), value(new V1(theValue)), next(nullptr) {}
-	K1* key;
-	V1* value;
-	struct Bucket<K1, V1>* next;
+	Bucket(const K& theKey, const V& theValue)
+	    : key(new K(theKey)), value(new V(theValue)), next(nullptr) {}
+	K* key;
+	V* value;
+	struct Bucket<K, V>* next;
 };
 
 // This is a generic implementation of a hash function
-template <typename K2> class DefaultHashGenerator
+template <typename K> class DefaultHashGenerator
 {
 	static const unsigned int THRESHOLD = 32;
 
@@ -67,7 +61,7 @@ template <typename K2> class DefaultHashGenerator
 	 * from the chooseBucket function will be divided by the hash table size,
 	 * and the reminder will be used as an index into the table.
 	 */
-	static unsigned int chooseBucket(const K2& k)
+	static unsigned int chooseBucket(const K& k)
 	{
 		unsigned int sum = 0;
 		unsigned char* data = &k;
@@ -186,7 +180,7 @@ public:
 	    }
 
 	    if (current == nullptr) {
-	        throw new KeyNotPresent();
+	        throw std::out_of_range();
 	    }
 	}
 
@@ -361,6 +355,90 @@ private:
 
 	void rehash(void) {
 
+		// Calculate new larger hash table size
+		unsigned int newSize = 2 * hashTableSize;
+		// FIXME: Round up to next largest prime number
+
+		// Allocate the larger hash table
+		Bucket<K, V>* newTable = new Bucket<K, V>[newSize];
+
+		// Iterate over all of the items in the current hash table and copy them to the new larger
+		// hash table, using the new hash index
+		for (unsigned int i = 0; i < hashTableSize; i++) {
+
+			Bucket<K, V>* fromCurrent = table[i];
+			Bucket<K, V>* fromPrev = table[i];
+			Bucket<K, V>* temp = nullptr;
+
+			// Iterate over all of the items in one linked list
+			while (fromCurrent != nullptr) {
+
+            	// Get the new index into the hash table
+            	unsigned int newIndex = HashGenerator::chooseBucket(fromCurrent->key) % newSize;
+
+            	if (newTable[newIndex]->key == nullptr) {
+
+            		if (fromPrev == fromCurrent) {
+                		// Case 1: Copying from the first bucket, to the first bucket
+                		newTable[newIndex]->key = fromCurrent->key;
+                		newTable[newIndex]->value = fromCurrent->value;
+            		}
+            		else {
+            			// Case 2: Copying from 2nd+ item in list, to the first bucket
+
+            			// Save pointer to bucket
+            			temp = fromCurrent;
+
+            			// Copy data
+            			newTable[newIndex]->key = fromCurrent->key;
+            			newTable[newIndex]->value = fromCurrent->value;
+
+                		// Remove bucket from the "from" list
+                		fromPrev->next = fromCurrent->next;
+
+                		// Delete the unneeded bucket
+                		delete temp;
+            		}
+            	}
+            	else {
+
+            		// Traverse to the end of the new list
+            		Bucket<K, V>* toCurrent = newTable[newIndex];
+            		while (toCurrent->next != nullptr) {
+            			toCurrent = toCurrent->next;
+            		}
+
+            		if (fromPrev == fromCurrent) {
+                		// Case 3: Copying from the first bucket, to the 2nd+ item in the list
+            			toCurrent->key = fromCurrent->key;
+            			toCurrent->value = fromCurrent->value;
+            		}
+            		else {
+            			// Case 4: Copying from the 2nd+ item in the list, to the 2nd+ item in the list
+
+            			// Save a pointer to the bucket
+            			temp = fromCurrent;
+
+            			// Allocate and append a new bucket
+            			toCurrent->next = new Bucket<K, V>();
+
+            			// Copy the data over
+            			toCurrent->key = fromCurrent->key;
+            			toCurrent->value = fromCurrent->value;
+
+            			// Remove bucket from the "from" list
+            			fromPrev->next = fromCurrent->next;
+
+            			// Delete the unneeded bucket
+            			delete temp;
+            		}
+            	}
+
+				// Update the current and next pointers for the next loop iteration
+				fromPrev = fromCurrent;
+				fromCurrent = fromCurrent->next;
+			}
+		}
 	}
 
 	static const unsigned int initialHashTableSize = 32;

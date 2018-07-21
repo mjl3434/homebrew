@@ -37,7 +37,7 @@ DynamicArray_test.o: DynamicArray_test.cpp DynamicArray.o
 	$(GXX) $(CFLAGS) -c DynamicArray_test.cpp
 	
 HashTable_test.o: HashTable_test.cpp HashTable.o
-	$(GXX) $(CFLAGS) -c HashTable.cpp
+	$(GXX) $(CFLAGS) -c HashTable_test.cpp
 	
 Queue_test.o: Queue_test.cpp SinglyLinkedList.o
 	$(GXX) $(CFLAGS) -c Queue_test.cpp
