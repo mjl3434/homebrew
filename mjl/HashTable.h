@@ -117,6 +117,13 @@ etc...
 
 */
 
+template <> class DefaultHashGenerator<int>
+{
+	static unsigned int chooseBucket(const short& k) {
+		return (unsigned int)k;
+	}
+};
+
 
 template <typename K, typename V, typename HashGenerator = DefaultHashGenerator<K>> class HashTable {
 public:
