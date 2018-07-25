@@ -119,7 +119,8 @@ etc...
 
 template <> class DefaultHashGenerator<int>
 {
-	static unsigned int chooseBucket(const short& k) {
+public:
+	static unsigned int chooseBucket(const int& k) {
 		return (unsigned int)k;
 	}
 };
@@ -180,15 +181,13 @@ public:
 	    unsigned int index = selectBucket(key);
 	    Bucket<K, V>* current = nullptr;
 
-	    for (current = table[index]; current != nullptr; current = current->next) {
-	        if (current->key == key) {
-	            return current->value;
+	    for (current = &table[index]; current != nullptr; current = current->next) {
+	        if (current->key == &key) {
+	            return *current->value;
 	        }
 	    }
 
-	    if (current == nullptr) {
-	        throw std::out_of_range();
-	    }
+        throw std::out_of_range("Tried to get entry that does not exist.");
 	}
 
 	// Will delete any element that is already there and insert new one
@@ -200,7 +199,7 @@ public:
 	    bool inserted = false;
 
 	    // Traverse the hash table list beginning to end
-	    for (current = table[index]; current->next != nullptr; current = current->next, collisions++) {
+	    for (current = &table[index]; current->next != nullptr; current = current->next, collisions++) {
 
 	        if (current->key == nullptr) {
 	            // If the current bucket is empty simply insert a new copy of the value
@@ -209,7 +208,7 @@ public:
 	            inserted = true;
 	            break;
 	        }
-	        else if (current->key == key) {
+	        else if (current->key == &key) {
 	            // Otherwise if the bucket is full and we have a matching key. Delete
 	            // the value there and replace it with a copy of the new value.
 	            delete current->key;
@@ -330,7 +329,7 @@ private:
 	    for (unsigned int i = 0; i < hashTableSize; i++) {
 
 	        Bucket<K, V>* temp = nullptr;
-	        Bucket<K, V>* current = table[i];
+	        Bucket<K, V>* current = &table[i];
 
 	        while (current != nullptr) {
 
@@ -342,7 +341,7 @@ private:
 
 	            // Then delete the bucket itself, unless it's the first bucket which must be
 	            // deleted using delete[]
-	            if (current != table[i])
+	            if (current != &table[i])
 	                delete current;
 
 	            current = temp;
@@ -373,22 +372,22 @@ private:
 		// hash table, using the new hash index
 		for (unsigned int i = 0; i < hashTableSize; i++) {
 
-			Bucket<K, V>* fromCurrent = table[i];
-			Bucket<K, V>* fromPrev = table[i];
+			Bucket<K, V>* fromCurrent = &table[i];
+			Bucket<K, V>* fromPrev = &table[i];
 			Bucket<K, V>* temp = nullptr;
 
 			// Iterate over all of the items in one linked list
 			while (fromCurrent != nullptr) {
 
             	// Get the new index into the hash table
-            	unsigned int newIndex = HashGenerator::chooseBucket(fromCurrent->key) % newSize;
+            	unsigned int newIndex = HashGenerator::chooseBucket(*fromCurrent->key) % newSize;
 
-            	if (newTable[newIndex]->key == nullptr) {
+            	if (newTable[newIndex].key == nullptr) {
 
             		if (fromPrev == fromCurrent) {
                 		// Case 1: Copying from the first bucket, to the first bucket
-                		newTable[newIndex]->key = fromCurrent->key;
-                		newTable[newIndex]->value = fromCurrent->value;
+                		newTable[newIndex].key = fromCurrent->key;
+                		newTable[newIndex].value = fromCurrent->value;
             		}
             		else {
             			// Case 2: Copying from 2nd+ item in list, to the first bucket
@@ -397,8 +396,8 @@ private:
             			temp = fromCurrent;
 
             			// Copy data
-            			newTable[newIndex]->key = fromCurrent->key;
-            			newTable[newIndex]->value = fromCurrent->value;
+            			newTable[newIndex].key = fromCurrent->key;
+            			newTable[newIndex].value = fromCurrent->value;
 
                 		// Remove bucket from the "from" list
                 		fromPrev->next = fromCurrent->next;
@@ -410,7 +409,7 @@ private:
             	else {
 
             		// Traverse to the end of the new list
-            		Bucket<K, V>* toCurrent = newTable[newIndex];
+            		Bucket<K, V>* toCurrent = &newTable[newIndex];
             		while (toCurrent->next != nullptr) {
             			toCurrent = toCurrent->next;
             		}

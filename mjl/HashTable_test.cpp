@@ -22,8 +22,10 @@
 #include "HashTable.h"
 
 #include <iostream>
+#include <list>
 #include <string>
 #include <unordered_map>
+#include <utility>
 
 using namespace std;
 using namespace mjl::homebrew;
@@ -35,20 +37,25 @@ bool runHashTableTests()
 
 	unordered_map<int, int> stdHash;
 	HashTable<int, int> myHash;
+	list<pair<int, int> > testData;
 
-	cout << "Inserting 1, 2, 3, 4, 5 in unordered_map\n";
-	stdHash[1] = 1;
-	stdHash[2] = 2;
-	stdHash[3] = 3;
-	stdHash[4] = 4;
-	stdHash[5] = 5;
+	testData.push_back(std::make_pair(1, 1));
+	testData.push_back(std::make_pair(2, 2));
+	testData.push_back(std::make_pair(3, 3));
+	testData.push_back(std::make_pair(4, 4));
+	testData.push_back(std::make_pair(5, 5));
 
-	cout << "Inserting 1, 2, 3, 4, 5 in HashTable\n";
-	myHash.insert(1, 1);
-	myHash.insert(2, 2);
-	myHash.insert(3, 3);
-	myHash.insert(4, 4);
-	myHash.insert(5, 5);
+
+	cout << "Inserting 1, 2, 3, 4, 5 in unordered_map and HashTable\n";
+	for (list<pair<int, int> >::iterator it = testData.begin();
+	     it != testData.end();
+	     it++) {
+		stdHash[it->first] = it->second;
+		myHash.insert(it->first, it->second);
+
+	}
+
+
 
 	int stdInt1 = stdHash[1];
 	int stdInt2 = stdHash[2];
