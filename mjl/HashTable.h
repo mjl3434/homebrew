@@ -182,7 +182,7 @@ public:
 	    Bucket<K, V>* current = nullptr;
 
 	    for (current = &table[index]; current != nullptr; current = current->next) {
-	        if (current->key == &key) {
+	        if (*current->key == key) {
 	            return *current->value;
 	        }
 	    }
@@ -196,11 +196,12 @@ public:
 	    unsigned int index = selectBucket(key);
 	    unsigned int collisions = 0;
 	    Bucket<K, V>* current = nullptr;
+	    Bucket<K, V>* prev = nullptr;
 	    bool inserted = false;
 
 	    // Traverse the hash table list beginning to end
-	    for (current = &table[index]; current->next != nullptr; current = current->next, collisions++) {
-
+	    current = &table[index];
+	    do {
 	        if (current->key == nullptr) {
 	            // If the current bucket is empty simply insert a new copy of the value
 	            current->key = new K(key);
@@ -208,7 +209,7 @@ public:
 	            inserted = true;
 	            break;
 	        }
-	        else if (current->key == &key) {
+	        else if (*current->key == key) {
 	            // Otherwise if the bucket is full and we have a matching key. Delete
 	            // the value there and replace it with a copy of the new value.
 	            delete current->key;
@@ -217,8 +218,13 @@ public:
 	            current->value = new V(value);
 	            inserted = true;
 	            break;
+	        } else {
+	        	// We have a collision (handle this case below)
+		    	collisions++;
 	        }
-	    }
+	        prev = current;
+	    	current = current->next;
+	    } while (current != nullptr);
 
         // We have traversed the whole list but did not find a matching key, so insert
         // at the end of the list.
@@ -229,7 +235,7 @@ public:
 	            Bucket<K, V>* additionalBucket = new Bucket<K, V>;
 	            additionalBucket->key = new K(key);
 	            additionalBucket->value = new V(value);
-	            current->next = additionalBucket;
+	            prev->next = additionalBucket;
 	        }
 	        else {
 	            rehash();
@@ -360,6 +366,21 @@ private:
 	}
 
 	void rehash(void) {
+		/*
+		 * FIXME: Use list of prime for rehash sizes
+		    37
+			79
+			163
+			331
+			673
+			1361
+			2729
+			5471
+			10949
+			21893
+			43787
+			87583
+		 */
 
 		// Calculate new larger hash table size
 		unsigned int newSize = 2 * hashTableSize;

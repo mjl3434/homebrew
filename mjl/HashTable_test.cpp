@@ -44,6 +44,16 @@ bool runHashTableTests()
 	testData.push_back(std::make_pair(3, 3));
 	testData.push_back(std::make_pair(4, 4));
 	testData.push_back(std::make_pair(5, 5));
+	testData.push_back(std::make_pair(33, 33));
+	testData.push_back(std::make_pair(34, 34));
+	testData.push_back(std::make_pair(35, 35));
+	testData.push_back(std::make_pair(36, 36));
+	testData.push_back(std::make_pair(37, 37));
+	testData.push_back(std::make_pair(65, 65));
+	testData.push_back(std::make_pair(66, 66));
+	testData.push_back(std::make_pair(67, 67));
+	testData.push_back(std::make_pair(68, 68));
+	testData.push_back(std::make_pair(69, 69));
 
 
 	cout << "Inserting 1, 2, 3, 4, 5 in unordered_map and HashTable\n";
