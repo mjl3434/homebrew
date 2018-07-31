@@ -126,28 +126,34 @@ public:
 };
 
 
+
 template <typename K, typename V, typename HashGenerator = DefaultHashGenerator<K>> class HashTable {
 public:
 
 	// Default constructor
-	HashTable() : hashTableSize(initialHashTableSize), size(0), table(new Bucket<K, V>[initialHashTableSize]) { }
+	HashTable()
+        : hashTableSizesIndex(0),
+		  hashTableSize(hashTableSizes[0]),
+		  size(0),
+		  table(new Bucket<K, V>[hashTableSizes[0]]) { }
 
 	// Copy constructor
 	HashTable(const HashTable& from)
-	    : hashTableSize(from.hashTableSize), size(from.size), table(new Bucket<K, V>[from.hashTableSize]) {
-
+	    : hashTableSizesIndex(0),
+		  hashTableSize(from.hashTableSize),
+		  size(from.size),
+		  table(new Bucket<K, V>[from.hashTableSize]) {
 	    commonCopy(this, from);
 	}
 
 	// Move constructor
 	HashTable(HashTable&& from) noexcept {
-
+		hashTableSizesIndex = from.hashTableSizesIndex;
 	    hashTableSize = from.hashTableSize;
 	    size = from.size;
 	    table = from.table;
 	    from.table = nullptr;
 	}
-
 
 	// Assignment operator
 	HashTable& operator=(const HashTable& from) {
@@ -230,21 +236,22 @@ public:
         // at the end of the list.
 	    if (inserted == false) {
 
-	        //if (collisions < collisionResizeThreshold) {
-	        if (true) {
+	    	float newLoadFactor = (size+1)/hashTableSize;
+
+	        if (newLoadFactor < rehashThreshold) {
 	            Bucket<K, V>* additionalBucket = new Bucket<K, V>;
 	            additionalBucket->key = new K(key);
 	            additionalBucket->value = new V(value);
 	            prev->next = additionalBucket;
+
+	    	    // Keep track of how many elements are stored
+	    	    size++;
 	        }
 	        else {
 	            rehash();
 	            insert(key, value);
 	        }
 	    }
-
-	    // Keep track of how many elements are stored
-	    size++;
 	}
 
 	// FIXME: Is it better to return bool (success/failure) or void?
@@ -366,25 +373,19 @@ private:
 	}
 
 	void rehash(void) {
-		/*
-		 * FIXME: Use list of prime for rehash sizes
-		    37
-			79
-			163
-			331
-			673
-			1361
-			2729
-			5471
-			10949
-			21893
-			43787
-			87583
-		 */
+
+		unsigned int newSize = 0;
 
 		// Calculate new larger hash table size
-		unsigned int newSize = 2 * hashTableSize;
-		// FIXME: Round up to next largest prime number
+		if (hashTableSizesIndex+1 < sizeof(hashTableSizes)/sizeof(hashTableSizes[0])) {
+			// If there is an existing prime number in our list left use that
+			hashTableSizesIndex++;
+			newSize = hashTableSizes[hashTableSizesIndex];
+		}
+		else {
+			// Otherwise we are out of prime numbers, simply begin doubling hash table size
+			newSize = 2 * hashTableSize;
+		}
 
 		// Allocate the larger hash table
 		Bucket<K, V>* newTable = new Bucket<K, V>[newSize];
@@ -468,11 +469,17 @@ private:
 		}
 	}
 
-	static const unsigned int initialHashTableSize = 32;
-	static const unsigned int collisionResizeThreshold = 3;
+
+	//static const unsigned int initialHashTableSize = 32;
+	//static const int hashTableSizes[] = { 37, 79, 163, 331, 673, 1361, 2729, 5471, 10949, 21893, 43787, 87583};
+	static const int hashTableSizes[];
+	//static const float rehashThreshold = 0.5f;
+	static const float rehashThreshold;
+	unsigned int hashTableSizesIndex;
 	unsigned int hashTableSize;
 	unsigned int size;
 	Bucket<K, V>* table;
+
 
 	// collisions
 
@@ -482,6 +489,8 @@ private:
 	// might always be more expensive, so maybe you have to think about what
 	// you're trying to optimize for? Average operation?
 };
+
+
 
 } /* namespace homebrew */
 } /* namespace mjl */

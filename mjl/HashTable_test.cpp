@@ -30,7 +30,6 @@
 using namespace std;
 using namespace mjl::homebrew;
 
-
 bool runHashTableTests()
 {
 	bool testResult = false;
@@ -39,55 +38,34 @@ bool runHashTableTests()
 	HashTable<int, int> myHash;
 	list<pair<int, int> > testData;
 
-	testData.push_back(std::make_pair(1, 1));
-	testData.push_back(std::make_pair(2, 2));
-	testData.push_back(std::make_pair(3, 3));
-	testData.push_back(std::make_pair(4, 4));
-	testData.push_back(std::make_pair(5, 5));
-	testData.push_back(std::make_pair(33, 33));
-	testData.push_back(std::make_pair(34, 34));
-	testData.push_back(std::make_pair(35, 35));
-	testData.push_back(std::make_pair(36, 36));
-	testData.push_back(std::make_pair(37, 37));
-	testData.push_back(std::make_pair(65, 65));
-	testData.push_back(std::make_pair(66, 66));
-	testData.push_back(std::make_pair(67, 67));
-	testData.push_back(std::make_pair(68, 68));
-	testData.push_back(std::make_pair(69, 69));
+	for (int i = 1; i <= 100; i++) {
+		cout << "Adding " << i << ", " << i << " to test data.\n";
+		testData.push_back(std::make_pair(i, i));
+	}
 
-
-	cout << "Inserting 1, 2, 3, 4, 5 in unordered_map and HashTable\n";
+	cout << "Inserting data in STL unordered_map, and custom hash table.\n";
 	for (list<pair<int, int> >::iterator it = testData.begin();
 	     it != testData.end();
 	     it++) {
 		stdHash[it->first] = it->second;
 		myHash.insert(it->first, it->second);
-
 	}
 
+	cout << "Extracted from STL unordered_map: ";
+	for (int i = 1; i <= 100; i++) {
+		int stdInt = stdHash[i];
+		cout << stdInt << ", ";
+	}
+	cout << "\n";
+
+	cout << "Extracted from custom hash table: ";
+	for (int i = 1; i <= 100; i++) {
+		int myInt = myHash.get(i);
+		cout << myInt << ", ";
+	}
+	cout << "\n";
 
 
-	int stdInt1 = stdHash[1];
-	int stdInt2 = stdHash[2];
-	int stdInt3 = stdHash[3];
-	int stdInt4 = stdHash[4];
-	int stdInt5 = stdHash[5];
-	cout << "Extracted " << stdInt1 << " "
-			             << stdInt2 << " "
-			             << stdInt3 << " "
-			             << stdInt4 << " "
-			             << stdInt5 << " \n";
-
-	int myInt1 = myHash.get(1);
-	int myInt2 = myHash.get(2);
-	int myInt3 = myHash.get(3);
-	int myInt4 = myHash.get(4);
-	int myInt5 = myHash.get(5);
-	cout << "Extracted " << myInt1 << " "
-			             << myInt2 << " "
-			             << myInt3 << " "
-			             << myInt4 << " "
-			             << myInt5 << " \n";
 
 
 
