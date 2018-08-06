@@ -126,28 +126,40 @@ public:
 };
 
 
+/* Note: C++ initialization of static constant arrays in template classes sucks
+ * so using the preprocessor is perhaps the best way.
+ */
+#define HASH_TABLE_SIZES 37, 79, 163, 331, 673, 1361, 2729, 5471, 10949, 21893, 43787, 87583
+#define INITIAL_HASH_TABLE_SIZE 37
+#define NUMBER_OF_SIZES 12
 
 template <typename K, typename V, typename HashGenerator = DefaultHashGenerator<K>> class HashTable {
 public:
 
 	// Default constructor
 	HashTable()
-        : hashTableSizesIndex(0),
-		  hashTableSize(hashTableSizes[0]),
+        : rehashThreshold(0.5f),
+          hashTableSizesIndex(0),
+		  hashTableSize(INITIAL_HASH_TABLE_SIZE),
 		  size(0),
-		  table(new Bucket<K, V>[hashTableSizes[0]]) { }
+		  table(new Bucket<K, V>[INITIAL_HASH_TABLE_SIZE]),
+          hashTableSizes { HASH_TABLE_SIZES } { }
 
 	// Copy constructor
 	HashTable(const HashTable& from)
-	    : hashTableSizesIndex(0),
+		: rehashThreshold(0.5f),
+	      hashTableSizesIndex(0),
 		  hashTableSize(from.hashTableSize),
 		  size(from.size),
-		  table(new Bucket<K, V>[from.hashTableSize]) {
+		  table(new Bucket<K, V>[from.hashTableSize]),
+          hashTableSizes { HASH_TABLE_SIZES } {
 	    commonCopy(this, from);
 	}
 
 	// Move constructor
-	HashTable(HashTable&& from) noexcept {
+	HashTable(HashTable&& from) noexcept
+		: rehashThreshold(0.5f),
+          hashTableSizes { HASH_TABLE_SIZES } {
 		hashTableSizesIndex = from.hashTableSizesIndex;
 	    hashTableSize = from.hashTableSize;
 	    size = from.size;
@@ -377,7 +389,7 @@ private:
 		unsigned int newSize = 0;
 
 		// Calculate new larger hash table size
-		if (hashTableSizesIndex+1 < sizeof(hashTableSizes)/sizeof(hashTableSizes[0])) {
+		if (hashTableSizesIndex+1 < NUMBER_OF_SIZES) {
 			// If there is an existing prime number in our list left use that
 			hashTableSizesIndex++;
 			newSize = hashTableSizes[hashTableSizesIndex];
@@ -472,13 +484,13 @@ private:
 
 	//static const unsigned int initialHashTableSize = 32;
 	//static const int hashTableSizes[] = { 37, 79, 163, 331, 673, 1361, 2729, 5471, 10949, 21893, 43787, 87583};
-	static const int hashTableSizes[];
 	//static const float rehashThreshold = 0.5f;
-	static const float rehashThreshold;
+	const float rehashThreshold;
 	unsigned int hashTableSizesIndex;
 	unsigned int hashTableSize;
 	unsigned int size;
 	Bucket<K, V>* table;
+	const int hashTableSizes[];
 
 
 	// collisions
