@@ -225,6 +225,7 @@ public:
 	            current->key = new K(key);
 	            current->value = new V(value);
 	            inserted = true;
+	            size++;
 	            break;
 	        }
 	        else if (*current->key == key) {
@@ -235,6 +236,7 @@ public:
 	            current->key = new K(key);
 	            current->value = new V(value);
 	            inserted = true;
+	            size++;
 	            break;
 	        } else {
 	        	// We have a collision (handle this case below)
@@ -248,16 +250,14 @@ public:
         // at the end of the list.
 	    if (inserted == false) {
 
-	    	float newLoadFactor = (size+1)/hashTableSize;
+	    	float newLoadFactor = (size+1.0)/hashTableSize;
 
 	        if (newLoadFactor < rehashThreshold) {
 	            Bucket<K, V>* additionalBucket = new Bucket<K, V>;
 	            additionalBucket->key = new K(key);
 	            additionalBucket->value = new V(value);
 	            prev->next = additionalBucket;
-
-	    	    // Keep track of how many elements are stored
-	    	    size++;
+	            size++;
 	        }
 	        else {
 	            rehash();
@@ -360,14 +360,17 @@ private:
 
 	            temp = current->next;
 
-	            // Delete the data inside the bucket
-	            delete current->key;
-	            delete current->value;
+	            if (current->key != nullptr) {
 
-	            // Then delete the bucket itself, unless it's the first bucket which must be
-	            // deleted using delete[]
-	            if (current != &table[i])
-	                delete current;
+	            	// Delete the data inside the bucket
+	            	delete current->key;
+	            	delete current->value;
+
+	            	// Then delete the bucket itself, unless it's the first bucket which must be
+	            	// deleted using delete[]
+	            	if (current != &table[i])
+	            		delete current;
+	            }
 
 	            current = temp;
 	        }
@@ -479,12 +482,17 @@ private:
 				fromCurrent = fromCurrent->next;
 			}
 		}
+
+		// Now that we have copied all of our data over to the new hash table,
+		// cleanup the old table, and set the new size.
+		hashTableSize = newSize;
+		Bucket<K, V>* temp = table;
+		table = newTable;
+		delete temp;
+
 	}
 
 
-	//static const unsigned int initialHashTableSize = 32;
-	//static const int hashTableSizes[] = { 37, 79, 163, 331, 673, 1361, 2729, 5471, 10949, 21893, 43787, 87583};
-	//static const float rehashThreshold = 0.5f;
 	const float rehashThreshold;
 	unsigned int hashTableSizesIndex;
 	unsigned int hashTableSize;

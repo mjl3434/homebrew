@@ -16,7 +16,12 @@ OBJECTS=\
 	HashTable.o \
 	HashTable_test.o
 
+.PHONY: all
 all: $(PROGRAM_NAME)
+
+.PHONY: clean
+clean:
+	rm -f *.o $(PROGRAM_NAME)
 
 $(PROGRAM_NAME): $(OBJECTS)
 	$(GXX) $(LDFLAGS) $(OBJECTS) -o $(PROGRAM_NAME)
