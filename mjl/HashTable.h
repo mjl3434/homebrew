@@ -22,8 +22,8 @@
 #ifndef HASHTABLE_H
 #define HASHTABLE_H
 
-//#include <exception>
 #include <stdexcept>
+#include <iostream>
 
 namespace mjl {
 namespace homebrew {
@@ -267,7 +267,7 @@ public:
 	}
 
 	// FIXME: Is it better to return bool (success/failure) or void?
-	V& remove(const K& key) {
+	V remove(const K& key) {
 
 	    // Walk down the list from the front, searching for a matching key. When we find a match
 	    // delete the data and update the list. Save temporary copy of the next pointer before
@@ -498,7 +498,7 @@ private:
 	unsigned int hashTableSize;
 	unsigned int size;
 	Bucket<K, V>* table;
-	const int hashTableSizes[];
+	const int hashTableSizes[NUMBER_OF_SIZES];
 
 
 	// collisions

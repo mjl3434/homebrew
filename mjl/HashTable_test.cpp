@@ -27,18 +27,21 @@
 #include <unordered_map>
 #include <utility>
 
+#include <stdlib.h>
+
 using namespace std;
 using namespace mjl::homebrew;
 
 bool runHashTableTests()
 {
 	bool testResult = false;
+	const int TEST_SIZE = 100;
 
 	unordered_map<int, int> stdHash;
 	HashTable<int, int> myHash;
 	list<pair<int, int> > testData;
 
-	for (int i = 1; i <= 100; i++) {
+	for (int i = 1; i <= TEST_SIZE; i++) {
 		cout << "Adding " << i << ", " << i << " to test data.\n";
 		testData.push_back(std::make_pair(i, i));
 	}
@@ -52,19 +55,18 @@ bool runHashTableTests()
 	}
 
 	cout << "Extracted from STL unordered_map: ";
-	for (int i = 1; i <= 100; i++) {
+	for (int i = 1; i <= TEST_SIZE; i++) {
 		int stdInt = stdHash[i];
 		cout << stdInt << ", ";
 	}
 	cout << "\n";
 
 	cout << "Extracted from custom hash table: ";
-	for (int i = 1; i <= 100; i++) {
+	for (int i = 1; i <= TEST_SIZE; i++) {
 		int myInt = myHash.get(i);
 		cout << myInt << ", ";
 	}
 	cout << "\n";
-
 
 
 
