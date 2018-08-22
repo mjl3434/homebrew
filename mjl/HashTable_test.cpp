@@ -39,6 +39,7 @@ bool runHashTableTests()
 
 	unordered_map<int, int> stdHash;
 	HashTable<int, int> myHash;
+	HashTable<int, int> myHash2;
 	list<pair<int, int> > testData;
 
 	for (int i = 1; i <= TEST_SIZE; i++) {
@@ -68,34 +69,69 @@ bool runHashTableTests()
 	}
 	cout << "\n";
 
+	cout << "Testing assignment operator\n";
+	myHash2 = myHash;
 
+	for (int i = 1; i <= TEST_SIZE; i++) {
+		int myInt = myHash2.get(i);
+		cout << myInt << ", ";
+	}
+	cout << "\n";
 
+	cout << "Testing copy constructor\n";
+	HashTable<int, int> myHash3(myHash2);
+	for (int i = 1; i <= TEST_SIZE; i++) {
+		int myInt = myHash3.get(i);
+		cout << myInt << ", ";
+	}
+	cout << "\n";
+
+	cout << "Testing move assignment operator\n";
+	HashTable<int, int> myHashReference1 = HashTable<int, int>();
+	for (list<pair<int, int> >::iterator it = testData.begin();
+	     it != testData.end();
+	     it++) {
+		myHashReference1.insert(it->first, it->second);
+	}
+	HashTable<int, int> myHashReference2 = HashTable<int, int>();
+	myHashReference2 = std::move(myHashReference1);
+	for (int i = 1; i <= TEST_SIZE; i++) {
+		int myInt = myHashReference2.get(i);
+		cout << myInt << ", ";
+	}
+	cout << "\n";
+
+	cout << "Testing move constructor\n";
+	HashTable<int, int> myHash4(std::move(myHashReference2));
+	for (int i = 1; i <= TEST_SIZE; i++) {
+		int myInt = myHash4.get(i);
+		cout << myInt << ", ";
+	}
+	cout << "\n";
 
 	/*
 	Tested:
 	HashTable() : hashTableSize(initialHashTableSize), size(0), table(new Bucket<K, V>[initialHashTableSize])
 	void insert(const K& key, const V& value)
 	V& get(const K& key)
+	void rehash(void)
+	unsigned int selectBucket(const K& k)
+	void commonDelete(void)
+	virtual ~HashTable()
+	static unsigned int chooseBucket(const int& k)
+	Bucket(void) : key(nullptr), value(nullptr), next(nullptr)
+
+	HashTable(const HashTable& from)
+	HashTable& operator=(const HashTable& from)
+	void commonCopy(HashTable& to, const HashTable& from)
+	HashTable(HashTable&& from) noexcept
+	HashTable& operator=(HashTable&& from) noexcept
 
 	Not Tested:
 
-	Bucket(void) : key(nullptr), value(nullptr), next(nullptr)
 	Bucket(const K& theKey, const V& theValue)
 	static unsigned int chooseBucket(const K& k)
-	static unsigned int chooseBucket(const short& k)
-
-	HashTable(const HashTable& from)
-	HashTable(HashTable&& from) noexcept
-	HashTable& operator=(const HashTable& from)
-	HashTable& operator=(HashTable&& from) noexcept
-	virtual ~HashTable()
-
-
-	V& remove(const K& key)
-	void commonCopy(HashTable& to, const HashTable& from)
-	void commonDelete(void)
-	unsigned int selectBucket(const K& k)
-	void rehash(void)
+	V remove(const K& key)
 
 	 */
 

@@ -153,7 +153,7 @@ public:
 		  size(from.size),
 		  table(new Bucket<K, V>[from.hashTableSize]),
           hashTableSizes { HASH_TABLE_SIZES } {
-	    commonCopy(this, from);
+	    commonCopy(*this, from);
 	}
 
 	// Move constructor
@@ -171,7 +171,7 @@ public:
 	HashTable& operator=(const HashTable& from) {
 	    commonDelete();
 	    table = new Bucket<K, V>[from.hashTableSize];
-	    commonCopy(this, from);
+	    commonCopy(*this, from);
 	    return *this;
 	}
 
@@ -317,29 +317,31 @@ private:
 
 	void commonCopy(HashTable& to, const HashTable& from) {
 
+		// For each bucket in the hash table
 	    for (unsigned int i = 0; i < from.hashTableSize; i++) {
 
-	        Bucket<K, V>* fromCurrent = from.table[i];
+	        Bucket<K, V>* fromCurrent = &from.table[i];
 
+	        // For each element in the linked list (at a given bucket)
 	        while (fromCurrent != nullptr) {
 
-	            // If the bucket is full copy the data over
+	            // If there is data to copy from
 	            if (fromCurrent->key != nullptr) {
 
-	                if (to.table[i]->key == nullptr) {
+	                if (to.table[i].key == nullptr) {
 	                    // If the current bucket is empty simply copy the data
-	                    to.table[i]->key = new K(fromCurrent->key);
-	                    to.table[i]->value = new V(fromCurrent->value);
+	                    to.table[i].key = new K(*fromCurrent->key);
+	                    to.table[i].value = new V(*fromCurrent->value);
 	                }
 	                else {
 	                    // Otherwise go to the end of the list, allocate and append another bucket
 	                    // then fill the bucket.
 	                    Bucket<K, V>* toCurrent = nullptr;
-	                    for (toCurrent = to.table[i]; toCurrent->next != nullptr; toCurrent = toCurrent->next) {
+	                    for (toCurrent = &to.table[i]; toCurrent->next != nullptr; toCurrent = toCurrent->next) {
 	                        // Do nothing, simply advancing to the end of the list.
 	                    }
 
-	                    toCurrent->next = new Bucket<K, V>(from->key, from->value);
+	                    toCurrent->next = new Bucket<K, V>(*fromCurrent->key, *fromCurrent->value);
 	                }
 	            }
 	            fromCurrent = fromCurrent->next;
