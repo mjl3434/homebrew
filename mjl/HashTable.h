@@ -30,61 +30,61 @@ namespace homebrew {
 
 template <typename K, typename V> struct Bucket {
 public:
-	Bucket(void) : key(nullptr), value(nullptr), next(nullptr) {}
-	Bucket(const K& theKey, const V& theValue)
-	    : key(new K(theKey)), value(new V(theValue)), next(nullptr) {}
-	K* key;
-	V* value;
-	struct Bucket<K, V>* next;
+    Bucket(void) : key(nullptr), value(nullptr), next(nullptr) {}
+    Bucket(const K& theKey, const V& theValue)
+        : key(new K(theKey)), value(new V(theValue)), next(nullptr) {}
+    K* key;
+    V* value;
+    struct Bucket<K, V>* next;
 };
 
 // This is a generic implementation of a hash function
 template <typename K> class DefaultHashGenerator
 {
-	static const unsigned int THRESHOLD = 32;
+    static const unsigned int THRESHOLD = 32;
 
-	/**
-	 * This is a generic hashing function used to generate an index into a hash
-	 * table. It is designed to work with any object type and to treat the
-	 * object as an opaque stream of bytes.
-	 *
-	 * Note that since we have no knowledge of what the object is made of, it
-	 * is somewhat a matter of luck as to whether or not the function has the
-	 * properties of a good hashing function. Obviously this is not good, so
-	 * what a user should do instead is to supply their own hashing function
-	 * appropriate for their user-defined type (class).
-	 *
-	 * A user can supply their own hash function by implementing a template
-	 * class just like this one, that takes their user-defined type (class) as
-	 * a template parameter, and provides their own implementation of the
-	 * chooseBucket function. Within the HashTable itself, the value returned
-	 * from the chooseBucket function will be divided by the hash table size,
-	 * and the reminder will be used as an index into the table.
-	 */
-	static unsigned int chooseBucket(const K& k)
-	{
-		unsigned int sum = 0;
-		unsigned char* data = &k;
-		unsigned int objectSize = sizeof(k);
+    /**
+     * This is a generic hashing function used to generate an index into a hash
+     * table. It is designed to work with any object type and to treat the
+     * object as an opaque stream of bytes.
+     *
+     * Note that since we have no knowledge of what the object is made of, it
+     * is somewhat a matter of luck as to whether or not the function has the
+     * properties of a good hashing function. Obviously this is not good, so
+     * what a user should do instead is to supply their own hashing function
+     * appropriate for their user-defined type (class).
+     *
+     * A user can supply their own hash function by implementing a template
+     * class just like this one, that takes their user-defined type (class) as
+     * a template parameter, and provides their own implementation of the
+     * chooseBucket function. Within the HashTable itself, the value returned
+     * from the chooseBucket function will be divided by the hash table size,
+     * and the reminder will be used as an index into the table.
+     */
+    static unsigned int chooseBucket(const K& k)
+    {
+        unsigned int sum = 0;
+        unsigned char* data = &k;
+        unsigned int objectSize = sizeof(k);
 
-		if (objectSize < THRESHOLD) {
+        if (objectSize < THRESHOLD) {
 
-			// If object size is small enough do a simple sum
-			for (unsigned int i = 0; i < objectSize; i++)
-				sum += data[i];
-		}
-		else {
+            // If object size is small enough do a simple sum
+            for (unsigned int i = 0; i < objectSize; i++)
+                sum += data[i];
+        }
+        else {
 
-			// Otherwise sample data evenly distributed across object
-			unsigned int fractionSize = objectSize/THRESHOLD;
+            // Otherwise sample data evenly distributed across object
+            unsigned int fractionSize = objectSize/THRESHOLD;
 
-			for (unsigned int i = 0; i < THRESHOLD; i++) {
-				sum += data[i*fractionSize];
-			}
-		}
+            for (unsigned int i = 0; i < THRESHOLD; i++) {
+                sum += data[i*fractionSize];
+            }
+        }
 
-		return sum;
-	}
+        return sum;
+    }
 
 };
 
@@ -92,16 +92,16 @@ template <typename K> class DefaultHashGenerator
 
 template <> class DefaultHashGenerator<short>
 {
-	static unsigned int chooseBucket(const short& k) {
-		return (unsigned int)k;
-	}
+    static unsigned int chooseBucket(const short& k) {
+        return (unsigned int)k;
+    }
 };
 
 template <> class DefaultHashGenerator<unsigned short>
 {
-	static unsigned int chooseBucket(const unsigned short& k) {
-		return (unsigned int)k;
-	}
+    static unsigned int chooseBucket(const unsigned short& k) {
+        return (unsigned int)k;
+    }
 };
 
 etc...
@@ -120,9 +120,9 @@ etc...
 template <> class DefaultHashGenerator<int>
 {
 public:
-	static unsigned int chooseBucket(const int& k) {
-		return (unsigned int)k;
-	}
+    static unsigned int chooseBucket(const int& k) {
+        return (unsigned int)k;
+    }
 };
 
 
@@ -136,142 +136,143 @@ public:
 template <typename K, typename V, typename HashGenerator = DefaultHashGenerator<K>> class HashTable {
 public:
 
-	// Default constructor
-	HashTable()
+    // Default constructor
+    HashTable()
         : rehashThreshold(0.5f),
           hashTableSizesIndex(0),
-		  hashTableSize(INITIAL_HASH_TABLE_SIZE),
-		  size(0),
-		  table(new Bucket<K, V>[INITIAL_HASH_TABLE_SIZE]),
+          hashTableSize(INITIAL_HASH_TABLE_SIZE),
+          size(0),
+          table(new Bucket<K, V>[INITIAL_HASH_TABLE_SIZE]),
           hashTableSizes { HASH_TABLE_SIZES } { }
 
-	// Copy constructor
-	HashTable(const HashTable& from)
-		: rehashThreshold(0.5f),
-	      hashTableSizesIndex(0),
-		  hashTableSize(from.hashTableSize),
-		  size(from.size),
-		  table(new Bucket<K, V>[from.hashTableSize]),
+    // Copy constructor
+    HashTable(const HashTable& from)
+        : rehashThreshold(0.5f),
+          hashTableSizesIndex(from.hashTableSizesIndex),
+          hashTableSize(from.hashTableSize),
+          size(from.size),
+          table(new Bucket<K, V>[from.hashTableSize]),
           hashTableSizes { HASH_TABLE_SIZES } {
-	    commonCopy(*this, from);
-	}
+        commonCopy(*this, from);
+    }
 
-	// Move constructor
-	HashTable(HashTable&& from) noexcept
-		: rehashThreshold(0.5f),
+    // Move constructor
+    HashTable(HashTable&& from) noexcept
+        : rehashThreshold(0.5f),
           hashTableSizes { HASH_TABLE_SIZES } {
-		hashTableSizesIndex = from.hashTableSizesIndex;
-	    hashTableSize = from.hashTableSize;
-	    size = from.size;
-	    table = from.table;
-	    from.table = nullptr;
-	}
+        hashTableSizesIndex = from.hashTableSizesIndex;
+        hashTableSize = from.hashTableSize;
+        size = from.size;
+        table = from.table;
+        from.table = nullptr;
+    }
 
-	// Assignment operator
-	HashTable& operator=(const HashTable& from) {
-	    commonDelete();
-	    table = new Bucket<K, V>[from.hashTableSize];
-	    commonCopy(*this, from);
-	    return *this;
-	}
+    // Assignment operator
+    HashTable& operator=(const HashTable& from) {
+        commonDelete();
+        table = new Bucket<K, V>[from.hashTableSize];
+        commonCopy(*this, from);
+        return *this;
+    }
 
-	// Move assignment operator
-	HashTable& operator=(HashTable&& from) noexcept {
+    // Move assignment operator
+    HashTable& operator=(HashTable&& from) noexcept {
 
-	    commonDelete();
+        commonDelete();
 
-	    hashTableSize = from.hashTableSize;
-	    size = from.size;
-	    table = from.table;
+        hashTableSizesIndex = from.hashTableSizesIndex;
+        hashTableSize = from.hashTableSize;
+        size = from.size;
+        table = from.table;
 
-	    from.table = nullptr;
+        from.table = nullptr;
 
-	    return *this;
-	}
+        return *this;
+    }
 
-	// Destructor
-	virtual ~HashTable() {
-	    commonDelete();
-	}
+    // Destructor
+    virtual ~HashTable() {
+        commonDelete();
+    }
 
-	V& get(const K& key) {
+    V& get(const K& key) {
 
-	    unsigned int index = selectBucket(key);
-	    Bucket<K, V>* current = nullptr;
+        unsigned int index = selectBucket(key);
+        Bucket<K, V>* current = nullptr;
 
-	    for (current = &table[index]; current != nullptr; current = current->next) {
-	        if (*current->key == key) {
-	            return *current->value;
-	        }
-	    }
+        for (current = &table[index]; current != nullptr; current = current->next) {
+            if (*current->key == key) {
+                return *current->value;
+            }
+        }
 
         throw std::out_of_range("Tried to get entry that does not exist.");
-	}
+    }
 
-	// Will delete any element that is already there and insert new one
-	void insert(const K& key, const V& value) {
+    // Will delete any element that is already there and insert new one
+    void insert(const K& key, const V& value) {
 
-	    unsigned int index = selectBucket(key);
-	    unsigned int collisions = 0;
-	    Bucket<K, V>* current = nullptr;
-	    Bucket<K, V>* prev = nullptr;
-	    bool inserted = false;
+        unsigned int index = selectBucket(key);
+        unsigned int collisions = 0;
+        Bucket<K, V>* current = nullptr;
+        Bucket<K, V>* prev = nullptr;
+        bool inserted = false;
 
-	    // Traverse the hash table list beginning to end
-	    current = &table[index];
-	    do {
-	        if (current->key == nullptr) {
-	            // If the current bucket is empty simply insert a new copy of the value
-	            current->key = new K(key);
-	            current->value = new V(value);
-	            inserted = true;
-	            size++;
-	            break;
-	        }
-	        else if (*current->key == key) {
-	            // Otherwise if the bucket is full and we have a matching key. Delete
-	            // the value there and replace it with a copy of the new value.
-	            delete current->key;
-	            delete current->value;
-	            current->key = new K(key);
-	            current->value = new V(value);
-	            inserted = true;
-	            size++;
-	            break;
-	        } else {
-	        	// We have a collision (handle this case below)
-		    	collisions++;
-	        }
-	        prev = current;
-	    	current = current->next;
-	    } while (current != nullptr);
+        // Traverse the hash table list beginning to end
+        current = &table[index];
+        do {
+            if (current->key == nullptr) {
+                // If the current bucket is empty simply insert a new copy of the value
+                current->key = new K(key);
+                current->value = new V(value);
+                inserted = true;
+                size++;
+                break;
+            }
+            else if (*current->key == key) {
+                // Otherwise if the bucket is full and we have a matching key. Delete
+                // the value there and replace it with a copy of the new value.
+                delete current->key;
+                delete current->value;
+                current->key = new K(key);
+                current->value = new V(value);
+                inserted = true;
+                size++;
+                break;
+            } else {
+                // We have a collision (handle this case below)
+                collisions++;
+            }
+            prev = current;
+            current = current->next;
+        } while (current != nullptr);
 
         // We have traversed the whole list but did not find a matching key, so insert
         // at the end of the list.
-	    if (inserted == false) {
+        if (inserted == false) {
 
-	    	float newLoadFactor = (size+1.0)/hashTableSize;
+            float newLoadFactor = (size+1.0)/hashTableSize;
 
-	        if (newLoadFactor < rehashThreshold) {
-	            Bucket<K, V>* additionalBucket = new Bucket<K, V>;
-	            additionalBucket->key = new K(key);
-	            additionalBucket->value = new V(value);
-	            prev->next = additionalBucket;
-	            size++;
-	        }
-	        else {
-	            rehash();
-	            insert(key, value);
-	        }
-	    }
-	}
+            if (newLoadFactor < rehashThreshold) {
+                Bucket<K, V>* additionalBucket = new Bucket<K, V>;
+                additionalBucket->key = new K(key);
+                additionalBucket->value = new V(value);
+                prev->next = additionalBucket;
+                size++;
+            }
+            else {
+                rehash();
+                insert(key, value);
+            }
+        }
+    }
 
-	// FIXME: Is it better to return bool (success/failure) or void?
-	V remove(const K& key) {
+    // FIXME: Is it better to return bool (success/failure) or void?
+    V remove(const K& key) {
 
-	    // Walk down the list from the front, searching for a matching key. When we find a match
-	    // delete the data and update the list. Save temporary copy of the next pointer before
-	    // traversing it so we can patch the list together properly.
+        // Walk down the list from the front, searching for a matching key. When we find a match
+        // delete the data and update the list. Save temporary copy of the next pointer before
+        // traversing it so we can patch the list together properly.
 
         unsigned int index = selectBucket(key);
         Bucket<K, V>* current = nullptr;
@@ -306,210 +307,207 @@ public:
             current = current->next;
         }
 
-	    // Keep track of how many elements are stored
+        // Keep track of how many elements are stored
         size--;
 
         // Construct and return a copy of the element removed
         return retval;
-	}
+    }
 
 private:
 
-	void commonCopy(HashTable& to, const HashTable& from) {
+    void commonCopy(HashTable& to, const HashTable& from) {
 
-		// For each bucket in the hash table
-	    for (unsigned int i = 0; i < from.hashTableSize; i++) {
+        // For each bucket in the hash table
+        for (unsigned int i = 0; i < from.hashTableSize; i++) {
 
-	        Bucket<K, V>* fromCurrent = &from.table[i];
+            Bucket<K, V>* fromCurrent = &from.table[i];
 
-	        // For each element in the linked list (at a given bucket)
-	        while (fromCurrent != nullptr) {
+            // For each element in the linked list (at a given bucket)
+            while (fromCurrent != nullptr) {
 
-	            // If there is data to copy from
-	            if (fromCurrent->key != nullptr) {
+                // If there is data to copy from
+                if (fromCurrent->key != nullptr) {
 
-	                if (to.table[i].key == nullptr) {
-	                    // If the current bucket is empty simply copy the data
-	                    to.table[i].key = new K(*fromCurrent->key);
-	                    to.table[i].value = new V(*fromCurrent->value);
-	                }
-	                else {
-	                    // Otherwise go to the end of the list, allocate and append another bucket
-	                    // then fill the bucket.
-	                    Bucket<K, V>* toCurrent = nullptr;
-	                    for (toCurrent = &to.table[i]; toCurrent->next != nullptr; toCurrent = toCurrent->next) {
-	                        // Do nothing, simply advancing to the end of the list.
-	                    }
+                    if (to.table[i].key == nullptr) {
+                        // If the current bucket is empty simply copy the data
+                        to.table[i].key = new K(*fromCurrent->key);
+                        to.table[i].value = new V(*fromCurrent->value);
+                    }
+                    else {
+                        // Otherwise go to the end of the list, allocate and append another bucket
+                        // then fill the bucket.
+                        Bucket<K, V>* toCurrent = nullptr;
+                        for (toCurrent = &to.table[i]; toCurrent->next != nullptr; toCurrent = toCurrent->next) {
+                            // Do nothing, simply advancing to the end of the list.
+                        }
 
-	                    toCurrent->next = new Bucket<K, V>(*fromCurrent->key, *fromCurrent->value);
-	                }
-	            }
-	            fromCurrent = fromCurrent->next;
-	        }
-	    }
+                        toCurrent->next = new Bucket<K, V>(*fromCurrent->key, *fromCurrent->value);
+                    }
+                }
+                fromCurrent = fromCurrent->next;
+            }
+        }
 
-	    to.size = from.size;
-	}
+        to.hashTableSizesIndex = from.hashTableSizesIndex;
+        to.hashTableSize = from.hashTableSize;
+        to.size = from.size;
+    }
 
-	void commonDelete(void) {
+    void commonDelete(void) {
 
-	    for (unsigned int i = 0; i < hashTableSize; i++) {
+        // If the object has been moved (via move constructor or move assignment
+        // operator) then there's no need to delete the memory here.
+        if (table == nullptr) {
+            return;
+        }
 
-	        Bucket<K, V>* temp = nullptr;
-	        Bucket<K, V>* current = &table[i];
+        for (unsigned int i = 0; i < hashTableSize; i++) {
 
-	        while (current != nullptr) {
+            Bucket<K, V>* temp = nullptr;
+            Bucket<K, V>* current = &table[i];
 
-	            temp = current->next;
+            while (current != nullptr) {
 
-	            if (current->key != nullptr) {
+                temp = current->next;
 
-	            	// Delete the data inside the bucket
-	            	delete current->key;
-	            	delete current->value;
+                if (current->key != nullptr) {
 
-	            	// Then delete the bucket itself, unless it's the first bucket which must be
-	            	// deleted using delete[]
-	            	if (current != &table[i])
-	            		delete current;
-	            }
+                    // Delete the data inside the bucket
+                    delete current->key;
+                    delete current->value;
 
-	            current = temp;
-	        }
-	    }
+                    // Then delete the bucket itself, unless it's the first bucket which must be
+                    // deleted using delete[]
+                    if (current != &table[i])
+                        delete current;
+                }
 
-	    if (table != nullptr)
-	        delete[] table;
-	}
+                current = temp;
+            }
+        }
 
-	/**
-	 * Use the default hashing function, or the user-defined version.
-	 */
-	unsigned int selectBucket(const K& k) {
-		return HashGenerator::chooseBucket(k) % hashTableSize;
-	}
+        delete[] table;
+    }
 
-	void rehash(void) {
+    /**
+     * Use the default hashing function, or the user-defined version.
+     */
+    unsigned int selectBucket(const K& k) {
+        return HashGenerator::chooseBucket(k) % hashTableSize;
+    }
 
-		unsigned int newSize = 0;
+    void rehash(void) {
 
-		// Calculate new larger hash table size
-		if (hashTableSizesIndex+1 < NUMBER_OF_SIZES) {
-			// If there is an existing prime number in our list left use that
-			hashTableSizesIndex++;
-			newSize = hashTableSizes[hashTableSizesIndex];
-		}
-		else {
-			// Otherwise we are out of prime numbers, simply begin doubling hash table size
-			newSize = 2 * hashTableSize;
-		}
+        unsigned int newSize = 0;
 
-		// Allocate the larger hash table
-		Bucket<K, V>* newTable = new Bucket<K, V>[newSize];
+        // Calculate new larger hash table size
+        if (hashTableSizesIndex+1 < NUMBER_OF_SIZES) {
+            // If there is an existing prime number in our list left use that
+            hashTableSizesIndex++;
+            newSize = hashTableSizes[hashTableSizesIndex];
+        }
+        else {
+            // Otherwise we are out of prime numbers, simply begin doubling hash table size
+            newSize = 2 * hashTableSize;
+        }
 
-		// Iterate over all of the items in the current hash table and copy them to the new larger
-		// hash table, using the new hash index
-		for (unsigned int i = 0; i < hashTableSize; i++) {
+        // Allocate the larger hash table
+        Bucket<K, V>* newTable = new Bucket<K, V>[newSize];
 
-			Bucket<K, V>* fromCurrent = &table[i];
-			Bucket<K, V>* fromPrev = &table[i];
-			Bucket<K, V>* temp = nullptr;
+        // Iterate over all of the items in the current hash table and copy them to the new larger
+        // hash table, using the new hash index
+        for (unsigned int i = 0; i < hashTableSize; i++) {
 
-			// Iterate over all of the items in one linked list
-			while (fromCurrent != nullptr) {
+            Bucket<K, V>* fromCurrent = &table[i];
+            Bucket<K, V>* fromPrev = &table[i];
+            Bucket<K, V>* temp = nullptr;
 
-            	// Get the new index into the hash table
-            	unsigned int newIndex = HashGenerator::chooseBucket(*fromCurrent->key) % newSize;
+            // Iterate over all of the items in one linked list
+            while (fromCurrent != nullptr) {
 
-            	if (newTable[newIndex].key == nullptr) {
+                // Get the new index into the hash table
+                unsigned int newIndex = HashGenerator::chooseBucket(*fromCurrent->key) % newSize;
 
-            		if (fromPrev == fromCurrent) {
-                		// Case 1: Copying from the first bucket, to the first bucket
-                		newTable[newIndex].key = fromCurrent->key;
-                		newTable[newIndex].value = fromCurrent->value;
-            		}
-            		else {
-            			// Case 2: Copying from 2nd+ item in list, to the first bucket
+                if (newTable[newIndex].key == nullptr) {
 
-            			// Save pointer to bucket
-            			temp = fromCurrent;
+                    if (fromPrev == fromCurrent) {
+                        // Case 1: Copying from the first bucket, to the first bucket
+                        newTable[newIndex].key = fromCurrent->key;
+                        newTable[newIndex].value = fromCurrent->value;
+                    }
+                    else {
+                        // Case 2: Copying from 2nd+ item in list, to the first bucket
 
-            			// Copy data
-            			newTable[newIndex].key = fromCurrent->key;
-            			newTable[newIndex].value = fromCurrent->value;
+                        // Save pointer to bucket
+                        temp = fromCurrent;
 
-                		// Remove bucket from the "from" list
-                		fromPrev->next = fromCurrent->next;
+                        // Copy data
+                        newTable[newIndex].key = fromCurrent->key;
+                        newTable[newIndex].value = fromCurrent->value;
 
-                		// Delete the unneeded bucket
-                		delete temp;
-            		}
-            	}
-            	else {
+                        // Remove bucket from the "from" list
+                        fromPrev->next = fromCurrent->next;
 
-            		// Traverse to the end of the new list
-            		Bucket<K, V>* toCurrent = &newTable[newIndex];
-            		while (toCurrent->next != nullptr) {
-            			toCurrent = toCurrent->next;
-            		}
+                        // Delete the unneeded bucket
+                        delete temp;
+                    }
+                }
+                else {
 
-            		if (fromPrev == fromCurrent) {
-                		// Case 3: Copying from the first bucket, to the 2nd+ item in the list
-            			toCurrent->key = fromCurrent->key;
-            			toCurrent->value = fromCurrent->value;
-            		}
-            		else {
-            			// Case 4: Copying from the 2nd+ item in the list, to the 2nd+ item in the list
+                    // Traverse to the end of the new list
+                    Bucket<K, V>* toCurrent = &newTable[newIndex];
+                    while (toCurrent->next != nullptr) {
+                        toCurrent = toCurrent->next;
+                    }
 
-            			// Save a pointer to the bucket
-            			temp = fromCurrent;
+                    if (fromPrev == fromCurrent) {
+                        // Case 3: Copying from the first bucket, to the 2nd+ item in the list
+                        toCurrent->key = fromCurrent->key;
+                        toCurrent->value = fromCurrent->value;
+                    }
+                    else {
+                        // Case 4: Copying from the 2nd+ item in the list, to the 2nd+ item in the list
 
-            			// Allocate and append a new bucket
-            			toCurrent->next = new Bucket<K, V>();
+                        // Save a pointer to the bucket
+                        temp = fromCurrent;
 
-            			// Copy the data over
-            			toCurrent->key = fromCurrent->key;
-            			toCurrent->value = fromCurrent->value;
+                        // Allocate and append a new bucket
+                        toCurrent->next = new Bucket<K, V>();
 
-            			// Remove bucket from the "from" list
-            			fromPrev->next = fromCurrent->next;
+                        // Copy the data over
+                        toCurrent->key = fromCurrent->key;
+                        toCurrent->value = fromCurrent->value;
 
-            			// Delete the unneeded bucket
-            			delete temp;
-            		}
-            	}
+                        // Remove bucket from the "from" list
+                        fromPrev->next = fromCurrent->next;
 
-				// Update the current and next pointers for the next loop iteration
-				fromPrev = fromCurrent;
-				fromCurrent = fromCurrent->next;
-			}
-		}
+                        // Delete the unneeded bucket
+                        delete temp;
+                    }
+                }
 
-		// Now that we have copied all of our data over to the new hash table,
-		// cleanup the old table, and set the new size.
-		hashTableSize = newSize;
-		Bucket<K, V>* temp = table;
-		table = newTable;
-		delete temp;
+                // Update the current and next pointers for the next loop iteration
+                fromPrev = fromCurrent;
+                fromCurrent = fromCurrent->next;
+            }
+        }
 
-	}
+        // Now that we have copied all of our data over to the new hash table,
+        // cleanup the old table, and set the new size.
+        hashTableSize = newSize;
+        Bucket<K, V>* temp = table;
+        table = newTable;
+        delete temp;
 
+    }
 
-	const float rehashThreshold;
-	unsigned int hashTableSizesIndex;
-	unsigned int hashTableSize;
-	unsigned int size;
-	Bucket<K, V>* table;
-	const int hashTableSizes[NUMBER_OF_SIZES];
-
-
-	// collisions
-
-	// Mathematically speaking, at what point is it cheaper to re-key/index
-	// the entire list in order to avoid collisions, compared to the cost of
-	// another operation at the collision? (It seems like fixing the hash table
-	// might always be more expensive, so maybe you have to think about what
-	// you're trying to optimize for? Average operation?
+    const float rehashThreshold;
+    unsigned int hashTableSizesIndex;
+    unsigned int hashTableSize;
+    unsigned int size;
+    Bucket<K, V>* table;
+    const int hashTableSizes[NUMBER_OF_SIZES];
 };
 
 

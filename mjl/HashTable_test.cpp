@@ -48,21 +48,19 @@ bool runHashTableTests()
 	}
 
 	cout << "Inserting data in STL unordered_map, and custom hash table.\n";
-	for (list<pair<int, int> >::iterator it = testData.begin();
-	     it != testData.end();
-	     it++) {
+	for (auto it = testData.begin(); it != testData.end(); it++) {
 		stdHash[it->first] = it->second;
 		myHash.insert(it->first, it->second);
 	}
 
-	cout << "Extracted from STL unordered_map: ";
+	cout << "Extracted from STL unordered_map: \n";
 	for (int i = 1; i <= TEST_SIZE; i++) {
 		int stdInt = stdHash[i];
 		cout << stdInt << ", ";
 	}
 	cout << "\n";
 
-	cout << "Extracted from custom hash table: ";
+	cout << "Extracted from custom hash table: \n";
 	for (int i = 1; i <= TEST_SIZE; i++) {
 		int myInt = myHash.get(i);
 		cout << myInt << ", ";
@@ -71,7 +69,6 @@ bool runHashTableTests()
 
 	cout << "Testing assignment operator\n";
 	myHash2 = myHash;
-
 	for (int i = 1; i <= TEST_SIZE; i++) {
 		int myInt = myHash2.get(i);
 		cout << myInt << ", ";
@@ -86,14 +83,13 @@ bool runHashTableTests()
 	}
 	cout << "\n";
 
+
 	cout << "Testing move assignment operator\n";
 	HashTable<int, int> myHashReference1 = HashTable<int, int>();
-	for (list<pair<int, int> >::iterator it = testData.begin();
-	     it != testData.end();
-	     it++) {
+	HashTable<int, int> myHashReference2 = HashTable<int, int>();
+	for (auto it = testData.begin(); it != testData.end(); it++) {
 		myHashReference1.insert(it->first, it->second);
 	}
-	HashTable<int, int> myHashReference2 = HashTable<int, int>();
 	myHashReference2 = std::move(myHashReference1);
 	for (int i = 1; i <= TEST_SIZE; i++) {
 		int myInt = myHashReference2.get(i);
