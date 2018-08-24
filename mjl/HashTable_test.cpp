@@ -105,6 +105,23 @@ bool runHashTableTests()
 	}
 	cout << "\n";
 
+	cout << "Testing remove\n";
+	int ten = 10;
+	int zero = 0;
+	myHash4.remove(ten);
+	myHash4.remove(zero);
+	for (int i = 1; i <= TEST_SIZE; i++) {
+
+		try {
+			int myInt = myHash4.get(i);
+			cout << myInt << ", ";
+		}
+		catch (std::out_of_range&) {
+			cout << "Entry " << i << " not found, ";
+		}
+	}
+	cout << "\n";
+
 	/*
 	Tested:
 	HashTable() : hashTableSize(initialHashTableSize), size(0), table(new Bucket<K, V>[initialHashTableSize])
@@ -116,20 +133,20 @@ bool runHashTableTests()
 	virtual ~HashTable()
 	static unsigned int chooseBucket(const int& k)
 	Bucket(void) : key(nullptr), value(nullptr), next(nullptr)
-
 	HashTable(const HashTable& from)
 	HashTable& operator=(const HashTable& from)
 	void commonCopy(HashTable& to, const HashTable& from)
 	HashTable(HashTable&& from) noexcept
 	HashTable& operator=(HashTable&& from) noexcept
+	V remove(const K& key)
 
 	Not Tested:
 
 	Bucket(const K& theKey, const V& theValue)
 	static unsigned int chooseBucket(const K& k)
-	V remove(const K& key)
 
 	 */
+	testResult = true;
 
 	return testResult;
 }

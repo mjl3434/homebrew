@@ -27,7 +27,7 @@ using namespace std;
 using namespace mjl::homebrew;
 
 
-void runStackTests(void)
+bool runStackTests(void)
 {
 	int i = 1;
 
@@ -54,5 +54,5 @@ void runStackTests(void)
 	//T top()
 	//unsigned int size()
 
-	return;
+	return true;
 }

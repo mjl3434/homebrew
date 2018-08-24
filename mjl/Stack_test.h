@@ -22,6 +22,6 @@
 #ifndef STACK_TEST_H
 #define STACK_TEST_H
 
-void runStackTests(void);
+bool runStackTests(void);
 
 #endif // STACK_TEST_H

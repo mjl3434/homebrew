@@ -88,10 +88,40 @@ template <typename K> class DefaultHashGenerator
 
 };
 
-/*
+// FIXME: Think about:
+//	casts from char/short to int
+//	casts from floating point types
+
+// signed & unsigned
+//char
+//short a;
+//int b;
+//long c;
+//long long d;
+
+//float e;
+//double f;
+//long double g;
+
+template <> class DefaultHashGenerator<char>
+{
+public:
+    static unsigned int chooseBucket(const char& k) {
+        return (unsigned int)k;
+    }
+};
+
+template <> class DefaultHashGenerator<unsigned char>
+{
+public:
+    static unsigned int chooseBucket(const unsigned char& k) {
+        return (unsigned int)k;
+    }
+};
 
 template <> class DefaultHashGenerator<short>
 {
+public:
     static unsigned int chooseBucket(const short& k) {
         return (unsigned int)k;
     }
@@ -99,23 +129,11 @@ template <> class DefaultHashGenerator<short>
 
 template <> class DefaultHashGenerator<unsigned short>
 {
+public:
     static unsigned int chooseBucket(const unsigned short& k) {
         return (unsigned int)k;
     }
 };
-
-etc...
-
-// and the others
-//short a;
-//int b;
-//long c;
-//long long d;
-//float e;
-//double f;
-//long double g;
-
-*/
 
 template <> class DefaultHashGenerator<int>
 {
@@ -125,6 +143,45 @@ public:
     }
 };
 
+template <> class DefaultHashGenerator<unsigned int>
+{
+public:
+    static unsigned int chooseBucket(const unsigned int& k) {
+        return (unsigned int)k;
+    }
+};
+
+template <> class DefaultHashGenerator<long>
+{
+public:
+    static unsigned int chooseBucket(const long& k) {
+        return (unsigned int)k;
+    }
+};
+
+template <> class DefaultHashGenerator<unsigned long>
+{
+public:
+    static unsigned int chooseBucket(const unsigned long& k) {
+        return (unsigned int)k;
+    }
+};
+
+template <> class DefaultHashGenerator<long long>
+{
+public:
+    static unsigned int chooseBucket(const long long& k) {
+        return (unsigned int)k;
+    }
+};
+
+template <> class DefaultHashGenerator<unsigned long long>
+{
+public:
+    static unsigned int chooseBucket(const unsigned long long& k) {
+        return (unsigned int)k;
+    }
+};
 
 /* Note: C++ initialization of static constant arrays in template classes sucks
  * so using the preprocessor is perhaps the best way.
@@ -201,7 +258,7 @@ public:
         Bucket<K, V>* current = nullptr;
 
         for (current = &table[index]; current != nullptr; current = current->next) {
-            if (*current->key == key) {
+            if (current->key != nullptr && *current->key == key) {
                 return *current->value;
             }
         }
@@ -267,8 +324,7 @@ public:
         }
     }
 
-    // FIXME: Is it better to return bool (success/failure) or void?
-    V remove(const K& key) {
+    bool remove(const K& key) {
 
         // Walk down the list from the front, searching for a matching key. When we find a match
         // delete the data and update the list. Save temporary copy of the next pointer before
@@ -277,22 +333,21 @@ public:
         unsigned int index = selectBucket(key);
         Bucket<K, V>* current = nullptr;
         Bucket<K, V>* prev = nullptr;
-        V retval;
+        bool removed = false;
 
-        current = table[index];
-        prev = table[index];
+        current = &table[index];
+        prev = &table[index];
 
         while (current != nullptr) {
 
             // We found the value we were looking for
-            if (current->key == key) {
-
-                // Save a copy to return
-                retval = current->value;
+            if (current->key != nullptr && *current->key == key) {
 
                 // Delete the data
                 delete current->key;
+                current->key = nullptr;
                 delete current->value;
+                current->value = nullptr;
 
                 // If we are not at the front of the list delete the Bucket too
                 if (current != prev) {
@@ -300,6 +355,8 @@ public:
                     prev->next = current->next;
                     delete temp;
                 }
+
+                removed = true;
             }
 
             // Advance to next bucket in list
@@ -311,7 +368,7 @@ public:
         size--;
 
         // Construct and return a copy of the element removed
-        return retval;
+        return removed;
     }
 
 private:

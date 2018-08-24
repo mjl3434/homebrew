@@ -27,11 +27,32 @@
 
 int main()
 {
-	runSinglyLinkedListTests();
-	runStackTests();
-	runQueueTests();
-	runArrayTests();
-	runHashTableTests();
+	bool status = false;
+
+	status = runSinglyLinkedListTests();
+	if (status != true) {
+		return -1;
+	}
+
+	status = runStackTests();
+	if (status != true) {
+		return -1;
+	}
+
+	status = runQueueTests();
+	if (status != true) {
+		return -1;
+	}
+
+	status = runArrayTests();
+	if (status != true) {
+		return -1;
+	}
+
+	status = runHashTableTests();
+	if (status != true) {
+		return -1;
+	}
 
 	return 0;
 }

@@ -26,7 +26,7 @@
 using namespace std;
 using namespace mjl::homebrew;
 
-void runQueueTests(void)
+bool runQueueTests(void)
 {
 	int i = 1;
 
@@ -62,5 +62,7 @@ void runQueueTests(void)
 	//T front(void)
 	//T back(void)
 	//unsigned int size(void)
+
+	return true;
 }
 
