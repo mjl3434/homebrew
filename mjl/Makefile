@@ -10,6 +10,8 @@ OBJECTS=\
 	DynamicArray.o \
 	DynamicArray_test.o \
 	Queue_test.o \
+	RedBlackTree.o \
+	RedBlackTree_test.o \
 	SinglyLinkedList.o \
 	SinglyLinkedList_test.o \
 	Stack_test.o \
@@ -35,6 +37,9 @@ DynamicArray.o: DynamicArray.cpp DynamicArray.h
 HashTable.o: HashTable.cpp HashTable.h
 	$(GXX) $(CFLAGS) -c HashTable.cpp
 
+RedBlackTree.o: RedBlackTree.cpp RedBlackTree.h
+	$(GXX) $(CFLAGS) -c RedBlackTree.cpp
+
 SinglyLinkedList.o: SinglyLinkedList.cpp SinglyLinkedList.h
 	$(GXX) $(CFLAGS) -c SinglyLinkedList.cpp
 
@@ -53,3 +58,5 @@ SinglyLinkedList_test.o: SinglyLinkedList_test.cpp SinglyLinkedList.o
 Stack_test.o: Stack_test.cpp SinglyLinkedList.o
 	$(GXX) $(CFLAGS) -c Stack_test.cpp
 
+RedBlackTree_test.o: RedBlackTree_test.cpp RedBlackTree.o
+	$(GXX) $(CFLAGS) -c RedBlackTree_test.cpp

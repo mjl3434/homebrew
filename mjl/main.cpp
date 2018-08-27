@@ -21,9 +21,10 @@
  */
 #include "DynamicArray_test.h"
 #include "HashTable_test.h"
+#include "Queue_test.h"
+#include "RedBlackTree_test.h"
 #include "SinglyLinkedList_test.h"
 #include "Stack_test.h"
-#include "Queue_test.h"
 
 int main()
 {
@@ -50,6 +51,11 @@ int main()
 	}
 
 	status = runHashTableTests();
+	if (status != true) {
+		return -1;
+	}
+
+	status = runRedBlackTreeTests();
 	if (status != true) {
 		return -1;
 	}

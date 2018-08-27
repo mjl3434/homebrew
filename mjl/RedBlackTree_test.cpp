@@ -19,10 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#include "RedBlackTree_test.h"
 #include "RedBlackTree.h"
 
-namespace mjl {
-namespace homebrew {
+using namespace mjl::homebrew;
 
-} /* namespace homebrew */
-} /* namespace mjl */
+bool runRedBlackTreeTests(void) {
+
+	bool retval = false;
+
+	RedBlackTree<int, int> redBlackTree;
+
+	retval = true;
+
+	return retval;
+}

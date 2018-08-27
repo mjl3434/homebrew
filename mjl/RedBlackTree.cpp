@@ -24,14 +24,7 @@
 namespace mjl {
 namespace homebrew {
 
-RedBlackTree::RedBlackTree() {
-	// TODO Auto-generated constructor stub
-
-}
-
-RedBlackTree::~RedBlackTree() {
-	// TODO Auto-generated destructor stub
-}
+	// Template class implementation is in .h
 
 } /* namespace homebrew */
 } /* namespace mjl */

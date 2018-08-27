@@ -19,8 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef REDBLACKTREE_H_
-#define REDBLACKTREE_H_
+#ifndef REDBLACKTREE_H
+#define REDBLACKTREE_H
 
 #include <iostream>
 
@@ -68,7 +68,9 @@ public:
 	RedBlackTree& operator=(RedBlackTree&& from);
 
 	// Destructor
-	virtual ~RedBlackTree();
+	virtual ~RedBlackTree() {
+
+	}
 
 	// By design do not support the operator[]. While the syntax is cool, the
 	// usage here is not intuitive which makes it prone to developer error.
@@ -199,4 +201,4 @@ private:
 } /* namespace homebrew */
 } /* namespace mjl */
 
-#endif /* REDBLACKTREE_H_ */
+#endif /* REDBLACKTREE_H */

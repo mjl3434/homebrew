@@ -24,5 +24,7 @@
 namespace mjl {
 namespace homebrew {
 
+	// Template class implementation is in .h
+
 } /* namespace homebrew */
 } /* namespace mjl */
