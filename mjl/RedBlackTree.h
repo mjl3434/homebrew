@@ -22,6 +22,8 @@
 #ifndef REDBLACKTREE_H_
 #define REDBLACKTREE_H_
 
+#include <iostream>
+
 namespace mjl {
 namespace homebrew {
 
@@ -37,6 +39,8 @@ public:
 
 	static const int RED = 0;
 	static const int BLACK = 1;
+	static const int LEFT = 0;
+	static const int RIGHT = 1;
 
 	class Node
 	{
@@ -99,7 +103,95 @@ private:
 			return false;
 	}
 
-	//Node* singleRotation(Node* )
+	Node* singleRotation(Node* root, int direction) {
+
+		Node* newRoot = nullptr;
+
+        if (direction == LEFT) {
+
+        	newRoot = root->right;
+        	root->right = newRoot->left;
+        	newRoot->left = root;
+
+        } else { // direction == RIGHT
+
+        	newRoot = root->left;
+        	root->left = newRoot->right;
+        	newRoot->right = root;
+
+        }
+
+        root->color = RED;
+        newRoot->color = BLACK;
+
+        return newRoot;
+	}
+
+	Node* doubleRotation(Node* root, int direction) {
+
+		Node* temp = nullptr;
+
+		if (direction == LEFT) {
+			root->right = singleRotation(root->right, RIGHT);
+			temp = singleRotation(root, LEFT);
+		}
+		else { // direction == RIGHT
+			root->left = singleRotation(root->left, LEFT);
+			temp = singleRotation(root, RIGHT);
+		}
+
+		return temp;
+	}
+
+	bool redBlackAssert(Node* root) {
+
+		int leftHeight = -1;
+		int rightHeight = -1;
+
+        if (root == nullptr) {
+            return 1;
+        }
+
+        Node* leftNode = root->left;
+        Node* rightNode = root->right;
+
+        // Check for consecutive red links
+        if (isRed(root)) {
+            if (isRed(leftNode) || isRed(rightNode)) {
+            	std::cerr << "Red violation!\n";
+                return 0;
+            }
+        }
+
+        leftHeight = redBlackAssert(leftNode);
+        rightHeight = redBlackAssert(rightNode);
+
+        // Verify binary tree properties (left < root && right > root)
+        if ((leftNode != nullptr && leftNode->data >= root->data) || (rightNode != nullptr && rightNode->data <= root->data)) {
+        	std::cerr << "Binary tree violation!\n";
+        	return 0;
+        }
+
+        // Verify black height of both subtrees is equal
+        if (leftHeight != 0 && rightHeight != 0 && leftHeight != rightHeight) {
+        	std::cerr << "Black violation!\n";
+        	return 0;
+        }
+
+        // Recursively count the black height
+        if (leftHeight != 0 && rightHeight != 0) {
+
+        	if (isRed(root) == true) {
+        		return leftHeight;
+        	}
+        	else {
+        		return leftHeight + 1;
+        	}
+        }
+        else {
+        	return 0;
+        }
+	}
 
 	Node* root;
 };

@@ -164,6 +164,8 @@ bool runSinglyLinkedListTests()
 	//SinglyLinkedList(SinglyLinkedList&&);
 	//SinglyLinkedList& operator=(SinglyLinkedList&&);
 
+	testResult = true;
+
 	return testResult;
 };
 

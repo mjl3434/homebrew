@@ -11,6 +11,5 @@ The goals of this project are the following:
   -- Update test code to compare STL results to this library and programatically compare return true/false on tests
   -- Bidirectional iterators
   -- Doubly Linked List
-  -- Hash Table
   -- Red-Black Tree
   -- Add statistical record keeping
