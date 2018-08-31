@@ -30,6 +30,10 @@ bool runRedBlackTreeTests(void) {
 
 	RedBlackTree<int, int> redBlackTree;
 
+	// FIXME: Insert 30 random values (or generate once, for consistent testing)
+	//        Run assert function after each case
+	//        Trace through insertion use cases
+
 	retval = true;
 
 	return retval;

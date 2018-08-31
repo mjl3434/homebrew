@@ -45,9 +45,15 @@ public:
 	class Node
 	{
 	public:
-		Node(V dataPassedByValue) : color(BLACK), data(dataPassedByValue), left(nullptr), right(nullptr) { }
+		Node(const K key, const V dataPassedByValue) :
+			color(RED),
+			key(key),
+			value(dataPassedByValue),
+			left(nullptr),
+			right(nullptr) { }
 		int color;
-		V data;
+		K key;
+		V value;
 		Node* left;
 		Node* right;
 	};
@@ -82,9 +88,82 @@ public:
 
 	V& find(const K& key);
 
-	// will delete any element that is already there and insert new one
-	void insert(const K& key, const V& value) {
+	// Inserts a new element with the given key, if the same key is already
+	// present the value will be overwritten.
+	int insert(const K key, const V value) {
 
+		root = insertRecursive(root, key, value);
+		root->color = RED;
+
+		return 1;
+	}
+
+	Node* insertRecursive(Node* myRoot, const K key, const V value) {
+
+		if (myRoot == nullptr) {
+			myRoot = new Node(key, value);
+		}
+		else if (value == myRoot->value) {
+			// Keep the tree and key the same, simply overwrite the value
+			myRoot->value = value;
+		}
+		else {
+
+			int direction = (myRoot->value < value) ? RIGHT : LEFT;
+
+			if (direction == LEFT) {
+
+				myRoot->left = insertRecursive(myRoot->left, key, value);
+
+				if (isRed(myRoot->left)) {
+
+					if (isRed(myRoot->right)) {
+
+						myRoot->color = RED;
+						myRoot->left->color = BLACK;
+						myRoot->right->color = BLACK;
+					}
+				}
+				else {
+
+					if (isRed(myRoot->left->left)) {
+
+						myRoot = singleRotate(myRoot, RIGHT);
+					}
+					else if (isRed(myRoot->left->right)) {
+
+						myRoot = doubleRotate(myRoot, RIGHT);
+					}
+				}
+
+			} else { // direction == RIGHT
+
+				myRoot->right = insertRecursive(myRoot->right, key, value);
+
+				if (isRed(myRoot->right)) {
+
+					if (isRed(myRoot->left)) {
+
+						myRoot->color = RED;
+						myRoot->right->color = BLACK;
+						myRoot->left->color = BLACK;
+					}
+				}
+				else {
+
+					if (isRed(myRoot->right->right)) {
+
+						myRoot = singleRotate(myRoot, LEFT);
+					}
+					else if (isRed(myRoot->right->left)) {
+
+						myRoot = doubleRotate(myRoot, LEFT);
+					}
+				}
+			}
+		}
+
+		return root;
 	}
 
 	V& remove(const K& key);
