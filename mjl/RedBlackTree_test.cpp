@@ -21,8 +21,11 @@
  */
 #include "RedBlackTree_test.h"
 #include "RedBlackTree.h"
+#include <iostream>
+#include <cstdlib>
 
 using namespace mjl::homebrew;
+using std::cout;
 
 bool runRedBlackTreeTests(void) {
 
@@ -30,7 +33,42 @@ bool runRedBlackTreeTests(void) {
 
 	RedBlackTree<int, int> redBlackTree;
 
-	// FIXME: Insert 30 random values (or generate once, for consistent testing)
+	/*
+	for (unsigned int i = 0; i < 200; i++) {
+		cout << rand() % 200 << " ";
+	}
+	cout << "\n";
+	exit(0);
+	*/
+
+	unsigned int index = 0;
+	int testData[] = {
+			183,  86, 177, 115, 193, 135, 186,  92,  49,  21,
+			162,  27,  90,  59, 163, 126, 140,  26, 172, 136,
+			 11, 168, 167,  29, 182, 130,  62, 123,  67, 135,
+			129,   2,  22,  58,  69, 167, 193,  56,  11,  42,
+			 29, 173,  21, 119, 184, 137, 198, 124, 115, 170,
+			 13, 126,  91, 180, 156,  73,  62, 170, 196,  81,
+			105, 125,  84, 127, 136, 105,  46, 129, 113,  57,
+			124,  95, 182, 145,  14, 167,  34, 164,  43, 150,
+			 87,   8,  76, 178, 188, 184,   3,  51, 154, 199,
+		    132,  60,  76, 168, 139,  12,  26, 186,  94, 139,
+			195, 170,  34, 178,  67,   1,  97, 102, 117,  92,
+			 52, 156, 101,  80,  86,  41,  65,  89,  44,  19,
+			 40, 129,  31, 117,  97, 171,  81,  75, 109, 127,
+	        167,  56,  97, 153, 186, 165, 106,  83,  19,  24
+	};
+
+
+
+	for (index = 0; index < sizeof(testData)/sizeof(testData[0]); index++) {
+		cout << "Inserting " << index << " : " << testData[index] << " into Red-Black Tree.\n";
+		redBlackTree.insert(testData[index], testData[index]);
+		redBlackTree.verifyTree();
+		cout << "\n\n";
+	}
+
+
 	//        Run assert function after each case
 	//        Trace through insertion use cases
 

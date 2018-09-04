@@ -24,6 +24,8 @@
 
 #include <iostream>
 
+using std::cout;
+
 namespace mjl {
 namespace homebrew {
 
@@ -59,7 +61,7 @@ public:
 	};
 
 	// Constructor
-	RedBlackTree() : root(nullptr) { }
+	RedBlackTree() : treeRoot(nullptr) { }
 
 	// Copy Constructor
 	RedBlackTree(const RedBlackTree& from);
@@ -92,78 +94,95 @@ public:
 	// present the value will be overwritten.
 	int insert(const K key, const V value) {
 
-		root = insertRecursive(root, key, value);
-		root->color = RED;
+		treeRoot = insertRecursive(treeRoot, key, value);
+		treeRoot->color = BLACK;
 
 		return 1;
 	}
 
-	Node* insertRecursive(Node* myRoot, const K key, const V value) {
+	Node* insertRecursive(Node* root, const K key, const V value) {
 
-		if (myRoot == nullptr) {
-			myRoot = new Node(key, value);
+		if (root == nullptr) {
+			root = new Node(key, value);
 		}
-		else if (value == myRoot->value) {
+		else if (value == root->value) {
 			// Keep the tree and key the same, simply overwrite the value
-			myRoot->value = value;
+			root->value = value;
+			cout << "Inserting duplicate node\n";
 		}
 		else {
 
-			int direction = (myRoot->value < value) ? RIGHT : LEFT;
+			int direction = (root->value < value) ? RIGHT : LEFT;
 
 			if (direction == LEFT) {
 
-				myRoot->left = insertRecursive(myRoot->left, key, value);
+				cout << "Inserting " << value << " to the left of " << root->value << ".\n";
 
-				if (isRed(myRoot->left)) {
+				root->left = insertRecursive(root->left, key, value);
 
-					if (isRed(myRoot->right)) {
+				if (isRed(root->left)) {
 
-						myRoot->color = RED;
-						myRoot->left->color = BLACK;
-						myRoot->right->color = BLACK;
+					if (isRed(root->right)) {
+
+						cout << "Both children are red, doing color flip.\n";
+
+						root->color = RED;
+						root->left->color = BLACK;
+						root->right->color = BLACK;
 					}
-				}
-				else {
+					else {
 
-					if (isRed(myRoot->left->left)) {
+						if (isRed(root->left->left)) {
 
-						myRoot = singleRotate(myRoot, RIGHT);
-					}
-					else if (isRed(myRoot->left->right)) {
+							cout << "Doing single rotation to the right.\n";
+							root = singleRotation(root, RIGHT);
+						}
+						else if (isRed(root->left->right)) {
 
-						myRoot = doubleRotate(myRoot, RIGHT);
+							cout << "Doing double rotation to the right.\n";
+							root = doubleRotation(root, RIGHT);
+						}
 					}
 				}
 
 			} else { // direction == RIGHT
 
-				myRoot->right = insertRecursive(myRoot->right, key, value);
+				cout << "Inserting " << value << " to the right of " << root->value << ".\n";
 
-				if (isRed(myRoot->right)) {
+				root->right = insertRecursive(root->right, key, value);
 
-					if (isRed(myRoot->left)) {
+				if (isRed(root->right)) {
 
-						myRoot->color = RED;
-						myRoot->right->color = BLACK;
-						myRoot->left->color = BLACK;
+					if (isRed(root->left)) {
+
+						cout << "Both children are red, doing color flip.\n";
+
+						root->color = RED;
+						root->right->color = BLACK;
+						root->left->color = BLACK;
 					}
-				}
-				else {
+					else {
 
-					if (isRed(myRoot->right->right)) {
+						if (isRed(root->right->right)) {
 
-						myRoot = singleRotate(myRoot, LEFT);
-					}
-					else if (isRed(myRoot->right->left)) {
+							cout << "Doing double rotation to the left.\n";
+							root = singleRotation(root, LEFT);
+						}
+						else if (isRed(root->right->left)) {
 
-						myRoot = doubleRotate(myRoot, LEFT);
+							cout << "Doing double rotation to the left.\n";
+							root = doubleRotation(root, LEFT);
+						}
 					}
 				}
 			}
 		}
 
 		return root;
+	}
+
+	int verifyTree(void) {
+		return redBlackAssert(treeRoot);
 	}
 
 	V& remove(const K& key);
@@ -224,57 +243,57 @@ private:
 		return temp;
 	}
 
-	bool redBlackAssert(Node* root) {
+	int redBlackAssert(Node* root) {
 
-		int leftHeight = -1;
-		int rightHeight = -1;
+			int leftHeight = -1;
+			int rightHeight = -1;
 
-        if (root == nullptr) {
-            return 1;
-        }
+	        if (root == nullptr) {
+	            return 1;
+	        }
 
-        Node* leftNode = root->left;
-        Node* rightNode = root->right;
+	        Node* leftNode = root->left;
+	        Node* rightNode = root->right;
 
-        // Check for consecutive red links
-        if (isRed(root)) {
-            if (isRed(leftNode) || isRed(rightNode)) {
-            	std::cerr << "Red violation!\n";
-                return 0;
-            }
-        }
+	        // Check for consecutive red links
+	        if (isRed(root)) {
+	            if (isRed(leftNode) || isRed(rightNode)) {
+	            	std::cerr << "Red violation!\n";
+	                return 0;
+	            }
+	        }
 
-        leftHeight = redBlackAssert(leftNode);
-        rightHeight = redBlackAssert(rightNode);
+	        leftHeight = redBlackAssert(leftNode);
+	        rightHeight = redBlackAssert(rightNode);
 
-        // Verify binary tree properties (left < root && right > root)
-        if ((leftNode != nullptr && leftNode->data >= root->data) || (rightNode != nullptr && rightNode->data <= root->data)) {
-        	std::cerr << "Binary tree violation!\n";
-        	return 0;
-        }
+	        // Verify binary tree properties (left < root && right > root)
+	        if ((leftNode != nullptr && leftNode->value >= root->value) || (rightNode != nullptr && rightNode->value <= root->value)) {
+	        	std::cerr << "Binary tree violation!\n";
+	        	return 0;
+	        }
 
-        // Verify black height of both subtrees is equal
-        if (leftHeight != 0 && rightHeight != 0 && leftHeight != rightHeight) {
-        	std::cerr << "Black violation!\n";
-        	return 0;
-        }
+	        // Verify black height of both subtrees is equal
+	        if (leftHeight != 0 && rightHeight != 0 && leftHeight != rightHeight) {
+	        	std::cerr << "Black violation!\n";
+	        	return 0;
+	        }
 
-        // Recursively count the black height
-        if (leftHeight != 0 && rightHeight != 0) {
+	        // Recursively count the black height
+	        if (leftHeight != 0 && rightHeight != 0) {
 
-        	if (isRed(root) == true) {
-        		return leftHeight;
-        	}
-        	else {
-        		return leftHeight + 1;
-        	}
-        }
-        else {
-        	return 0;
-        }
-	}
+	        	if (isRed(root) == true) {
+	        		return leftHeight;
+	        	}
+	        	else {
+	        		return leftHeight + 1;
+	        	}
+	        }
+	        else {
+	        	return 0;
+	        }
+		}
 
-	Node* root;
+	Node* treeRoot;
 };
 
 } /* namespace homebrew */
