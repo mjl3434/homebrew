@@ -39,7 +39,7 @@ bool runRedBlackTreeTests(void) {
 	}
 	cout << "\n";
 	exit(0);
-	*/
+	 */
 
 	unsigned int index = 0;
 	int testData[] = {
@@ -63,7 +63,8 @@ bool runRedBlackTreeTests(void) {
 
 	for (index = 0; index < sizeof(testData)/sizeof(testData[0]); index++) {
 		cout << "Inserting " << index << " : " << testData[index] << " into Red-Black Tree.\n";
-		redBlackTree.insert(testData[index], testData[index]);
+		//redBlackTree.insert(testData[index]);
+		redBlackTree.topDownInsert(testData[index]);
 		redBlackTree.verifyTree();
 		cout << "\n\n";
 	}

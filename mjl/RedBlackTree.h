@@ -47,14 +47,12 @@ public:
 	class Node
 	{
 	public:
-		Node(const K key, const V dataPassedByValue) :
+		Node(const V dataPassedByValue) :
 			color(RED),
-			key(key),
 			value(dataPassedByValue),
 			left(nullptr),
 			right(nullptr) { }
 		int color;
-		K key;
 		V value;
 		Node* left;
 		Node* right;
@@ -92,18 +90,117 @@ public:
 
 	// Inserts a new element with the given key, if the same key is already
 	// present the value will be overwritten.
-	int insert(const K key, const V value) {
+	int insert(const V value) {
 
-		treeRoot = insertRecursive(treeRoot, key, value);
+		treeRoot = insertRecursive(treeRoot, value);
 		treeRoot->color = BLACK;
 
 		return 1;
 	}
 
-	Node* insertRecursive(Node* root, const K key, const V value) {
+	int topDownInsert(const V value) {
+
+		Node head(value);
+		Node* g = nullptr;
+		Node* t = nullptr;
+		Node* p = nullptr;
+		Node* q = nullptr;
+		int direction = LEFT;
+		int last = -1;
+
+		if (treeRoot == nullptr) {
+			treeRoot = new Node(value);
+		}
+		else {
+
+			t = &head;
+			q = t->right = treeRoot;
+
+			while (true) {
+				if (q == nullptr) {
+					if (direction == LEFT) {
+						p->left = q = new Node(value);
+					} else { // direction == RIGHT
+						p->right = q = new Node(value);
+					}
+				}
+				else if (isRed(q->left) && isRed(q->right)) {
+					// Color flip
+					q->color = RED;
+					q->left->color = BLACK;
+					q->right->color = BLACK;
+				}
+
+				// Fix red violations
+				if (isRed(q) && isRed(p)) {
+
+					int direction2 = t->right == g;
+
+					if (last == LEFT) {
+						if (q == p->left) {
+							if (direction2 == LEFT) {
+								t->left = singleRotation(g, RIGHT);
+							}
+							else { // direction2 == RIGHT
+								t->right = singleRotation(g, LEFT);
+							}
+						} else {
+							if (direction2 == LEFT) {
+								t->left = doubleRotation(g, RIGHT);
+							}
+							else { // direction2 == RIGHT
+								t->right = doubleRotation(g, LEFT);
+							}
+						}
+					}
+					else { // last == RIGHT
+						if (q == p->right) {
+							if (direction2 == LEFT) {
+								t->left = singleRotation(g, RIGHT);
+							} else { // direction2 == RIGHT
+								t->right = singleRotation(g, LEFT);
+							}
+						}
+						else {
+							if (direction2 == LEFT) {
+								t->left = doubleRotation(g, RIGHT);
+							} else { // direction2 == RIGHT
+								t->right = doubleRotation(g, LEFT);
+							}
+						}
+					}
+				}
+
+				// Stop if found
+				if (q->value == value) {
+					break;
+				}
+
+				last = direction;
+				direction = q->value < value;
+
+				// Update helpers
+				if (g != nullptr) {
+					t = g;
+				}
+
+				g = p;
+				p = q;
+				q = (direction == LEFT) ? q->left : q->right;
+			}
+
+			treeRoot = head.right;
+		}
+
+		treeRoot->color = BLACK;
+
+		return 1;
+	}
+
+	Node* insertRecursive(Node* root, const V value) {
 
 		if (root == nullptr) {
-			root = new Node(key, value);
+			root = new Node(value);
 		}
 		else if (value == root->value) {
 			// Keep the tree and key the same, simply overwrite the value
@@ -118,7 +215,7 @@ public:
 
 				cout << "Inserting " << value << " to the left of " << root->value << ".\n";
 
-				root->left = insertRecursive(root->left, key, value);
+				root->left = insertRecursive(root->left,  value);
 
 				if (isRed(root->left)) {
 
@@ -149,7 +246,7 @@ public:
 
 				cout << "Inserting " << value << " to the right of " << root->value << ".\n";
 
-				root->right = insertRecursive(root->right, key, value);
+				root->right = insertRecursive(root->right, value);
 
 				if (isRed(root->right)) {
 
