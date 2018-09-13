@@ -23,6 +23,7 @@
 #define REDBLACKTREE_H
 
 #include <iostream>
+#include <stdlib.h>
 
 using std::cout;
 
@@ -35,7 +36,7 @@ namespace homebrew {
  * 2. The number of black nodes along any path in a red-black tree must be the same.
  * 3. The root node must be black, and leaves are black
  */
-template <typename K, typename V> class RedBlackTree
+template <typename V> class RedBlackTree
 {
 public:
 
@@ -50,6 +51,10 @@ public:
 		Node(const V dataPassedByValue) :
 			color(RED),
 			value(dataPassedByValue),
+			left(nullptr),
+			right(nullptr) { }
+		Node(void) :
+			color(RED),
 			left(nullptr),
 			right(nullptr) { }
 		int color;
@@ -86,7 +91,7 @@ public:
 	//
 	// V& operator[](const K& key);
 
-	V& find(const K& key);
+	V& find(const V& value);
 
 	// Inserts a new element with the given key, if the same key is already
 	// present the value will be overwritten.
@@ -98,98 +103,175 @@ public:
 		return 1;
 	}
 
+	int findHeight(Node* node) {
+		if (node == nullptr) {
+			return -1;
+		}
+
+		int leftHeight = findHeight(node->left);
+		int rightHeight = findHeight(node->right);
+
+		if (leftHeight > rightHeight)
+			return leftHeight + 1;
+		else
+			return rightHeight + 1;
+	}
+
+	void printLevelOrder(void) {
+
+		int treeHeight = findHeight(treeRoot) + 1;
+
+		if (treeHeight == -1)
+			return;
+
+		for (int level = 1; level <= treeHeight; level++) {
+			printGivenLevel(treeRoot, level);
+			cout << "\n";
+		}
+	}
+
+	void printGivenLevel(Node* node, int level) {
+
+		if (node == nullptr) {
+			cout << "x ";
+			return;
+		}
+
+		if (level == 1) {
+			cout << node->value << " ";
+		}
+		else if (level > 1) {
+			printGivenLevel(node->left, level-1);
+			printGivenLevel(node->right, level-1);
+		}
+	}
+
 	int topDownInsert(const V value) {
 
-		Node head(value);
-		Node* g = nullptr;
-		Node* t = nullptr;
-		Node* p = nullptr;
-		Node* q = nullptr;
+		Node fakeRoot;
+		Node* grandparent = nullptr;	// g
+		Node* parent2 = nullptr;	    // t
+		Node* parent = nullptr;			// p
+		Node* current = nullptr;		// q
 		int direction = LEFT;
-		int last = -1;
+		int lastDirection = -1;
 
 		if (treeRoot == nullptr) {
 			treeRoot = new Node(value);
 		}
 		else {
 
-			t = &head;
-			q = t->right = treeRoot;
+			parent2 = &fakeRoot;
+			current = parent2->right = treeRoot;
 
-			while (true) {
-				if (q == nullptr) {
+			while (true) { // Search down the tree
+
+				/*
+				std::cout << "New pass through while loop.\n";
+				if (grandparent != nullptr)
+					std::cout << "grandparent = " << grandparent->value << "\n";
+				else
+					std::cout << "grandparent = nullptr\n";
+				if (parent2 != nullptr)
+					std::cout << "parent2 = " << parent2->value << "\n";
+				else
+					std::cout << "parent2 = nullptr\n";
+				if (parent != nullptr)
+					std::cout << "parent = " << parent->value << "\n";
+				else
+					std::cout << "parent = nullptr\n";
+				if (current != nullptr)
+					std::cout << "current = " << current->value << "\n";
+				else
+					std::cout << "current = nullptr\n";
+				std::cout << "\n\n";
+				*/
+
+				if (current == nullptr) {
+					// We have reached a leaf, so insert new node at the bottom
 					if (direction == LEFT) {
-						p->left = q = new Node(value);
+						parent->left = current = new Node(value);
 					} else { // direction == RIGHT
-						p->right = q = new Node(value);
+						parent->right = current = new Node(value);
 					}
 				}
-				else if (isRed(q->left) && isRed(q->right)) {
+				else if (isRed(current->left) && isRed(current->right)) {
+					cout << "Color flip of parent " << current->value
+						 << " to RED and left child " << current->left->value
+						 << " and right child " << current->right->value
+						 << "to BLACK\n";
 					// Color flip
-					q->color = RED;
-					q->left->color = BLACK;
-					q->right->color = BLACK;
+					current->color = RED;
+					current->left->color = BLACK;
+					current->right->color = BLACK;
 				}
 
 				// Fix red violations
-				if (isRed(q) && isRed(p)) {
+				if (isRed(current) && isRed(parent)) {
 
-					int direction2 = t->right == g;
+					int direction2 = (parent2->right == grandparent) ? RIGHT : LEFT;
 
-					if (last == LEFT) {
-						if (q == p->left) {
-							if (direction2 == LEFT) {
-								t->left = singleRotation(g, RIGHT);
+					if (lastDirection == LEFT) {
+						if (direction2 == LEFT)
+							if (current == parent->left) {
+								std::cout << "Single rotate right around " << grandparent->value << "\n";
+								parent2->left = singleRotation(grandparent, RIGHT);
 							}
-							else { // direction2 == RIGHT
-								t->right = singleRotation(g, LEFT);
+							else {
+								std::cout << "Double rotate right around " << grandparent->value << "\n";
+								parent2->left = doubleRotation(grandparent, RIGHT);
 							}
-						} else {
-							if (direction2 == LEFT) {
-								t->left = doubleRotation(g, RIGHT);
+						else // direction2 == RIGHT
+							if (current == parent->left) {
+								std::cout << "Single rotate right around " << grandparent->value << "\n";
+								parent2->left = singleRotation(grandparent, RIGHT);
 							}
-							else { // direction2 == RIGHT
-								t->right = doubleRotation(g, LEFT);
+							else {
+								std::cout << "Double rotate right around " << grandparent->value << "\n";
+								parent2->left = doubleRotation(grandparent, RIGHT);
 							}
-						}
 					}
-					else { // last == RIGHT
-						if (q == p->right) {
-							if (direction2 == LEFT) {
-								t->left = singleRotation(g, RIGHT);
-							} else { // direction2 == RIGHT
-								t->right = singleRotation(g, LEFT);
+					else { // lastDirection == RIGHT
+						if (direction2 == LEFT)
+							if (current == parent->right) {
+								std::cout << "Single rotate left around " << grandparent->value << "\n";
+								parent2->right = singleRotation(grandparent, LEFT);
 							}
-						}
-						else {
-							if (direction2 == LEFT) {
-								t->left = doubleRotation(g, RIGHT);
-							} else { // direction2 == RIGHT
-								t->right = doubleRotation(g, LEFT);
+							else {
+								std::cout << "Double rotate left around " << grandparent->value << "\n";
+								parent2->right = doubleRotation(grandparent, LEFT);
 							}
-						}
+						else // direction2 == RIGHT
+							if (current == parent->right) {
+								std::cout << "Single rotate left around " << grandparent->value << "\n";
+								parent2->right = singleRotation(grandparent, LEFT);
+							}
+							else {
+								std::cout << "Double rotate left around " << grandparent->value << "\n";
+								parent2->right = doubleRotation(grandparent, LEFT);
+							}
 					}
 				}
 
 				// Stop if found
-				if (q->value == value) {
+				if (current->value == value) {
 					break;
 				}
 
-				last = direction;
-				direction = q->value < value;
+				lastDirection = direction;
+				direction = (current->value < value) ? RIGHT : LEFT;
 
 				// Update helpers
-				if (g != nullptr) {
-					t = g;
+				if (grandparent != nullptr) {
+					parent2 = grandparent;
 				}
 
-				g = p;
-				p = q;
-				q = (direction == LEFT) ? q->left : q->right;
+				grandparent = parent;
+				parent = current;
+				current = (direction == LEFT) ? current->left : current->right;
 			}
 
-			treeRoot = head.right;
+			treeRoot = fakeRoot.right;
 		}
 
 		treeRoot->color = BLACK;
@@ -282,7 +364,7 @@ public:
 		return redBlackAssert(treeRoot);
 	}
 
-	V& remove(const K& key);
+	V& remove(const V& value);
 
 private:
 

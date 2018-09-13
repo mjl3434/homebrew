@@ -31,7 +31,7 @@ bool runRedBlackTreeTests(void) {
 
 	bool retval = false;
 
-	RedBlackTree<int, int> redBlackTree;
+	RedBlackTree<int> redBlackTree;
 
 	/*
 	for (unsigned int i = 0; i < 200; i++) {
@@ -62,10 +62,12 @@ bool runRedBlackTreeTests(void) {
 
 
 	for (index = 0; index < sizeof(testData)/sizeof(testData[0]); index++) {
-		cout << "Inserting " << index << " : " << testData[index] << " into Red-Black Tree.\n";
+		cout << "----------------------------------------------------\n";
+		cout << "Test " << index+1 << ", inserting: " << testData[index] << " into Red-Black Tree.\n";
 		//redBlackTree.insert(testData[index]);
 		redBlackTree.topDownInsert(testData[index]);
 		redBlackTree.verifyTree();
+		redBlackTree.printLevelOrder();
 		cout << "\n\n";
 	}
 
