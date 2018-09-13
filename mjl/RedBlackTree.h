@@ -150,7 +150,7 @@ public:
 
 		Node fakeRoot;
 		Node* grandparent = nullptr;	// g
-		Node* parent2 = nullptr;	    // t
+		Node* greatgrandparent = nullptr;	    // t
 		Node* parent = nullptr;			// p
 		Node* current = nullptr;		// q
 		int direction = LEFT;
@@ -161,8 +161,8 @@ public:
 		}
 		else {
 
-			parent2 = &fakeRoot;
-			current = parent2->right = treeRoot;
+			greatgrandparent = &fakeRoot;
+			current = greatgrandparent->right = treeRoot;
 
 			while (true) { // Search down the tree
 
@@ -172,10 +172,10 @@ public:
 					std::cout << "grandparent = " << grandparent->value << "\n";
 				else
 					std::cout << "grandparent = nullptr\n";
-				if (parent2 != nullptr)
-					std::cout << "parent2 = " << parent2->value << "\n";
+				if (greatgrandparent != nullptr)
+					std::cout << "greatgrandparent = " << greatgrandparent->value << "\n";
 				else
-					std::cout << "parent2 = nullptr\n";
+					std::cout << "greatgrandparent = nullptr\n";
 				if (parent != nullptr)
 					std::cout << "parent = " << parent->value << "\n";
 				else
@@ -199,7 +199,7 @@ public:
 					cout << "Color flip of parent " << current->value
 						 << " to RED and left child " << current->left->value
 						 << " and right child " << current->right->value
-						 << "to BLACK\n";
+						 << " to BLACK\n";
 					// Color flip
 					current->color = RED;
 					current->left->color = BLACK;
@@ -209,46 +209,46 @@ public:
 				// Fix red violations
 				if (isRed(current) && isRed(parent)) {
 
-					int direction2 = (parent2->right == grandparent) ? RIGHT : LEFT;
+					int direction2 = (greatgrandparent->right == grandparent) ? RIGHT : LEFT;
 
 					if (lastDirection == LEFT) {
 						if (direction2 == LEFT)
 							if (current == parent->left) {
 								std::cout << "Single rotate right around " << grandparent->value << "\n";
-								parent2->left = singleRotation(grandparent, RIGHT);
+								greatgrandparent->left = singleRotation(grandparent, RIGHT);
 							}
 							else {
 								std::cout << "Double rotate right around " << grandparent->value << "\n";
-								parent2->left = doubleRotation(grandparent, RIGHT);
+								greatgrandparent->left = doubleRotation(grandparent, RIGHT);
 							}
 						else // direction2 == RIGHT
 							if (current == parent->left) {
 								std::cout << "Single rotate right around " << grandparent->value << "\n";
-								parent2->left = singleRotation(grandparent, RIGHT);
+								greatgrandparent->left = singleRotation(grandparent, RIGHT);
 							}
 							else {
 								std::cout << "Double rotate right around " << grandparent->value << "\n";
-								parent2->left = doubleRotation(grandparent, RIGHT);
+								greatgrandparent->left = doubleRotation(grandparent, RIGHT);
 							}
 					}
 					else { // lastDirection == RIGHT
 						if (direction2 == LEFT)
 							if (current == parent->right) {
 								std::cout << "Single rotate left around " << grandparent->value << "\n";
-								parent2->right = singleRotation(grandparent, LEFT);
+								greatgrandparent->right = singleRotation(grandparent, LEFT);
 							}
 							else {
 								std::cout << "Double rotate left around " << grandparent->value << "\n";
-								parent2->right = doubleRotation(grandparent, LEFT);
+								greatgrandparent->right = doubleRotation(grandparent, LEFT);
 							}
 						else // direction2 == RIGHT
 							if (current == parent->right) {
 								std::cout << "Single rotate left around " << grandparent->value << "\n";
-								parent2->right = singleRotation(grandparent, LEFT);
+								greatgrandparent->right = singleRotation(grandparent, LEFT);
 							}
 							else {
 								std::cout << "Double rotate left around " << grandparent->value << "\n";
-								parent2->right = doubleRotation(grandparent, LEFT);
+								greatgrandparent->right = doubleRotation(grandparent, LEFT);
 							}
 					}
 				}
@@ -263,9 +263,8 @@ public:
 
 				// Update helpers
 				if (grandparent != nullptr) {
-					parent2 = grandparent;
+					greatgrandparent = grandparent;
 				}
-
 				grandparent = parent;
 				parent = current;
 				current = (direction == LEFT) ? current->left : current->right;
