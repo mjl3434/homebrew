@@ -437,7 +437,9 @@ template<typename V> class RedBlackTree {
     }
 
     Node* removeBalance(Node* note, V& value, bool done) {
-
+    	// Fixme: Implement this if top down doesn't work.
+    	Node* foo = nullptr;
+    	return foo;
     }
 
     int verifyTree(void) {
@@ -455,6 +457,133 @@ template<typename V> class RedBlackTree {
         }
 
         return true;
+    }
+
+    void innerLoop(Node* q, Node* p, Node* g, Node* f, int& direction, V& value) {
+
+    	int lastDireciton = direction;
+
+    	// Update helpers
+    	g = p;
+    	p = q;
+
+    	if (direction == LEFT) {
+    		q = q->left;
+    	} else {
+    		q = q->right;
+    	}
+
+    	if (q->value < value) {
+    		direction = RIGHT;
+    	} else {
+    		direction = LEFT;
+    	}
+
+    	// Save found node
+    	if (q->value == value)
+    		f = q;
+
+    	/*
+    	if (isRed(q) != true && isRed())
+
+            // Push the red node down
+            if (!is_red(q) && !is_red(q->link[dir]))
+            {
+                if (is_red(q->link[!dir]))
+                {
+                    p = p->link[last] = jsw_single(q, dir);
+                }
+                else if (!is_red(q->link[!dir]))
+                {
+                    struct jsw_node *s = p->link[!last];
+
+                    if (s != NULL)
+                    {
+                        if (!is_red(s->link[!last]) && !is_red(s->link[last]))
+                        {
+                            // Color flip
+                            p->red = 0;
+                            s->red = 1;
+                            q->red = 1;
+                        }
+                        else
+                        {
+                            int dir2 = g->link[1] == p;
+
+                            if (is_red(s->link[last]))
+                            {
+                                g->link[dir2] = jsw_double(p, last);
+                            }
+                            else if (is_red(s->link[!last]))
+                            {
+                                g->link[dir2] = jsw_single(p, last);
+                            }
+
+                            // Ensure correct coloring
+                            q->red = g->link[dir2]->red = 1;
+                            g->link[dir2]->link[0]->red = 0;
+                            g->link[dir2]->link[1]->red = 0;
+                        }
+                    }
+                }
+            }
+            */
+    }
+
+    void topDownRemove(const V& value) {
+
+    	if (treeRoot == nullptr)
+    		return;
+
+        Node* head = nullptr;	// False tree root
+        Node* q = nullptr;
+        Node* p = nullptr;
+        Node* g = nullptr;
+        Node* f = nullptr;
+        int direction = RIGHT;
+
+        q = &head;
+        q->right = treeRoot;
+
+        while (true) {
+        	if (direction == LEFT) {
+        		while (q->left != nullptr) {
+        			innerLoop(q, p, g, f, direction, value);
+        		}
+        	} else {
+        		while (q->right != nullptr) {
+        			innerLoop(q, p, g, f, direction, value);
+        		}
+        	}
+        }
+
+        // Replace and remove if found
+        if (f != nullptr) {
+
+        	f->value = q->value;
+
+        	if (p->right == q) {
+        		if (q->left == nullptr) {
+        			p->right = q->right;
+        		} else {
+       				p->right = q->left;
+        		}
+        	} else {
+        		if (q->left == nullptr) {
+        			p->left = q->right;
+        		} else {
+       				p->left = q->left;
+        		}
+        	}
+
+        	delete q;
+        }
+
+        // Update root and make it black
+        treeRoot = head->right;
+		if (treeRoot != nullptr) {
+			treeRoot->color = BLACK;
+		}
     }
 
  private:
