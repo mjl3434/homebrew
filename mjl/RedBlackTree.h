@@ -19,6 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+/*
+ * A large portion of this code was influenced by an article on Red-Black trees
+ * found on the website eternallyconfuzzled.com circa September 2018. The
+ * licensing terms shown here below were found on that site. I believe they are
+ * fully compatible with the MIT license used throughout this library.
+ */
+/*
+ * Licensing and fair usage
+ * ------------------------
+ * What license does Eternally Confuzzled use? Can you copypasta my stuff? Yes!
+ * The content on this site is public domain, and I couldn't care less what you
+ * use or how you use it. Anything else would defeat the purpose of the site,
+ * which is to facilitate knowledge transfer and make life easier for
+ * programmers. I don't even care if you copy entire articles verbatim and place
+ * them elseweb. They wouldn't be updated to match the latest site, but that's
+ * your problem, not mine. :)
+ *
+ * All that said, I can't make it clear enough that I accept no responsibility
+ * at all for damages caused by direct use of content or modified content. I
+ * don't anticipate any such damages, but public domain means you're on your
+ * own. Do what you will, and don't come crying to me if something breaks. If
+ * any of my published content is wrong or broken somehow, I'd love to hear
+ * about it so I can fix it here, of course. Feedback is always welcome; that
+ * hasn't changed. Further, I'll be happy to respond with my thoughts and
+ * suggested fixes for your problems, and those are public domain as well.
+ *
+ * Long story short, help yourself. Though in legal terms I'm completely off the
+ * hook for what you choose to do. Keep that in mind.
+ */
 #ifndef REDBLACKTREE_H
 #define REDBLACKTREE_H
 
@@ -36,7 +65,7 @@ namespace homebrew {
  * 2. The number of black nodes along any path in a red-black tree must be the same.
  * 3. The root node must be black, and leaves are black
  */
-template<typename V> class RedBlackTree {
+template<typename K, typename V> class RedBlackTree {
  public:
 
     static const int RED = 0;
@@ -46,27 +75,21 @@ template<typename V> class RedBlackTree {
 
     class Node {
      public:
-        Node(const V dataPassedByValue)
-                        : color(RED),
-                          value(dataPassedByValue),
-                          left(nullptr),
-                          right(nullptr) {
+        Node(const K theKey, const V theValue)
+                        : link{ nullptr, nullptr },
+                          color(RED),
+                          key(theKey),
+                          value(theValue) {
         }
-        Node(void)
-                        : color(RED),
-                          left(nullptr),
-                          right(nullptr) {
-        }
+        Node(void) : link{ nullptr, nullptr }, color(RED) { }
+        Node* link[2];
         int color;
+        K key;
         V value;
-        Node* left;
-        Node* right;
     };
 
     // Constructor
-    RedBlackTree()
-                    : treeRoot(nullptr) {
-    }
+    RedBlackTree() : treeRoot(nullptr) { }
 
     // Copy Constructor
     RedBlackTree(const RedBlackTree& from);
@@ -85,33 +108,14 @@ template<typename V> class RedBlackTree {
 
     }
 
-    // By design do not support the operator[]. While the syntax is cool, the
-    // usage here is not intuitive which makes it prone to developer error.
-    // -- Is this fundamentally a search, or an insert function? Both?
-    // -- What is returned if noting is stored under that key?
-    // -- What happens if there is something already there?
-    //
-    // V& operator[](const K& key);
-
-    V& find(const V& value);
-
-    // Inserts a new element with the given key, if the same key is already
-    // present the value will be overwritten.
-    int insert(const V value) {
-
-        treeRoot = insertRecursive(treeRoot, value);
-        treeRoot->color = BLACK;
-
-        return 1;
-    }
-
+// BEGIN DEBUGGING HELPER FUNCTIONS
     int findHeight(Node* node) {
         if (node == nullptr) {
             return -1;
         }
 
-        int leftHeight = findHeight(node->left);
-        int rightHeight = findHeight(node->right);
+        int leftHeight = findHeight(node->link[LEFT]);
+        int rightHeight = findHeight(node->link[RIGHT]);
 
         if (leftHeight > rightHeight)
             return leftHeight + 1;
@@ -142,503 +146,13 @@ template<typename V> class RedBlackTree {
         if (level == 1) {
             cout << node->value << " ";
         } else if (level > 1) {
-            printGivenLevel(node->left, level - 1);
-            printGivenLevel(node->right, level - 1);
+            printGivenLevel(node->link[LEFT], level - 1);
+            printGivenLevel(node->link[RIGHT], level - 1);
         }
-    }
-
-    int topDownInsert(const V value) {
-
-        Node fakeRoot;
-        Node* grandparent = nullptr;    // g
-        Node* greatgrandparent = nullptr;        // t
-        Node* parent = nullptr;            // p
-        Node* current = nullptr;        // q
-        int direction = LEFT;
-        int lastDirection = -1;
-
-        if (treeRoot == nullptr) {
-            treeRoot = new Node(value);
-        } else {
-
-            greatgrandparent = &fakeRoot;
-            current = greatgrandparent->right = treeRoot;
-
-            while (true) {    // Search down the tree
-
-                /*
-                 std::cout << "New pass through while loop.\n";
-                 if (grandparent != nullptr)
-                 std::cout << "grandparent = " << grandparent->value << "\n";
-                 else
-                 std::cout << "grandparent = nullptr\n";
-                 if (greatgrandparent != nullptr)
-                 std::cout << "greatgrandparent = " << greatgrandparent->value << "\n";
-                 else
-                 std::cout << "greatgrandparent = nullptr\n";
-                 if (parent != nullptr)
-                 std::cout << "parent = " << parent->value << "\n";
-                 else
-                 std::cout << "parent = nullptr\n";
-                 if (current != nullptr)
-                 std::cout << "current = " << current->value << "\n";
-                 else
-                 std::cout << "current = nullptr\n";
-                 std::cout << "\n\n";
-                 */
-
-                if (current == nullptr) {
-                    // We have reached a leaf, so insert new node at the bottom
-                    if (direction == LEFT) {
-                        parent->left = current = new Node(value);
-                    } else {    // direction == RIGHT
-                        parent->right = current = new Node(value);
-                    }
-                } else if (isRed(current->left) && isRed(current->right)) {
-                    cout << "Color flip of parent " << current->value
-                                    << " to RED and left child "
-                                    << current->left->value
-                                    << " and right child "
-                                    << current->right->value << " to BLACK\n";
-                    // Color flip
-                    current->color = RED;
-                    current->left->color = BLACK;
-                    current->right->color = BLACK;
-                }
-
-                // Fix red violations
-                if (isRed(current) && isRed(parent)) {
-
-                    int direction2 =
-                                    (greatgrandparent->right == grandparent) ?
-                                                    RIGHT : LEFT;
-
-                    if (lastDirection == LEFT) {
-                        if (direction2 == LEFT)
-                            if (current == parent->left) {
-                                std::cout << "Single rotate right around "
-                                                << grandparent->value << "\n";
-                                greatgrandparent->left = singleRotation(
-                                                grandparent, RIGHT);
-                            } else {
-                                std::cout << "Double rotate right around "
-                                                << grandparent->value << "\n";
-                                greatgrandparent->left = doubleRotation(
-                                                grandparent, RIGHT);
-                            }
-                        else    // direction2 == RIGHT
-                        if (current == parent->left) {
-                            std::cout << "Single rotate right around "
-                                            << grandparent->value << "\n";
-                            greatgrandparent->left = singleRotation(grandparent,
-                                                                    RIGHT);
-                        } else {
-                            std::cout << "Double rotate right around "
-                                            << grandparent->value << "\n";
-                            greatgrandparent->left = doubleRotation(grandparent,
-                                                                    RIGHT);
-                        }
-                    } else {    // lastDirection == RIGHT
-                        if (direction2 == LEFT)
-                            if (current == parent->right) {
-                                std::cout << "Single rotate left around "
-                                                << grandparent->value << "\n";
-                                greatgrandparent->right = singleRotation(
-                                                grandparent, LEFT);
-                            } else {
-                                std::cout << "Double rotate left around "
-                                                << grandparent->value << "\n";
-                                greatgrandparent->right = doubleRotation(
-                                                grandparent, LEFT);
-                            }
-                        else    // direction2 == RIGHT
-                        if (current == parent->right) {
-                            std::cout << "Single rotate left around "
-                                            << grandparent->value << "\n";
-                            greatgrandparent->right = singleRotation(
-                                            grandparent, LEFT);
-                        } else {
-                            std::cout << "Double rotate left around "
-                                            << grandparent->value << "\n";
-                            greatgrandparent->right = doubleRotation(
-                                            grandparent, LEFT);
-                        }
-                    }
-                }
-
-                // Stop if found
-                if (current->value == value) {
-                    break;
-                }
-
-                lastDirection = direction;
-                direction = (current->value < value) ? RIGHT : LEFT;
-
-                // Update helpers
-                if (grandparent != nullptr) {
-                    greatgrandparent = grandparent;
-                }
-                grandparent = parent;
-                parent = current;
-                current = (direction == LEFT) ? current->left : current->right;
-            }
-
-            treeRoot = fakeRoot.right;
-        }
-
-        treeRoot->color = BLACK;
-
-        return 1;
-    }
-
-    Node* insertRecursive(Node* root, const V value) {
-
-        if (root == nullptr) {
-            root = new Node(value);
-        } else if (value == root->value) {
-            // Keep the tree and key the same, simply overwrite the value
-            root->value = value;
-            cout << "Inserting duplicate node\n";
-        } else {
-
-            int direction = (root->value < value) ? RIGHT : LEFT;
-
-            if (direction == LEFT) {
-
-                cout << "Inserting " << value << " to the left of "
-                                << root->value << ".\n";
-
-                root->left = insertRecursive(root->left, value);
-
-                if (isRed(root->left)) {
-
-                    if (isRed(root->right)) {
-
-                        cout << "Both children are red, doing color flip.\n";
-
-                        root->color = RED;
-                        root->left->color = BLACK;
-                        root->right->color = BLACK;
-                    } else {
-
-                        if (isRed(root->left->left)) {
-
-                            cout << "Doing single rotation to the right.\n";
-                            root = singleRotation(root, RIGHT);
-                        } else if (isRed(root->left->right)) {
-
-                            cout << "Doing double rotation to the right.\n";
-                            root = doubleRotation(root, RIGHT);
-                        }
-                    }
-                }
-
-            } else {    // direction == RIGHT
-
-                cout << "Inserting " << value << " to the right of "
-                                << root->value << ".\n";
-
-                root->right = insertRecursive(root->right, value);
-
-                if (isRed(root->right)) {
-
-                    if (isRed(root->left)) {
-
-                        cout << "Both children are red, doing color flip.\n";
-
-                        root->color = RED;
-                        root->right->color = BLACK;
-                        root->left->color = BLACK;
-                    } else {
-
-                        if (isRed(root->right->right)) {
-
-                            cout << "Doing double rotation to the left.\n";
-                            root = singleRotation(root, LEFT);
-                        } else if (isRed(root->right->left)) {
-
-                            cout << "Doing double rotation to the left.\n";
-                            root = doubleRotation(root, LEFT);
-                        }
-                    }
-                }
-            }
-        }
-
-        return root;
-    }
-
-    Node* removeRecursive(Node* node, V& value, bool& done) {
-
-        // We have reached the leaf, we are done
-        if (node == nullptr) {
-            done = true;
-            return node;
-        }
-
-        int direction = -1;
-
-        // We found the node that must be removed
-        if (node->value == value) {
-
-            // If there are zero or one child removal is simple
-            if (node->left == nullptr || node->right == nullptr) {
-
-                // Save a pointer to the (possibly) non-null node
-                Node* save = nullptr;
-                if (node->left == nullptr)
-                    save = node->right;
-                else
-                    save = node->left;
-
-                if (isRed(node)) {
-                    // Removing a red node cannot case a violation so we're done
-                    done = true;
-                } else if (isRed(save)) {
-                    // Fix the child's color, to be color of parent (black)
-                    save->color = BLACK;
-                    done = true;
-                }
-
-                delete node;
-
-                return save;
-
-            } else {    // The node has 2 children
-
-                Node* heir = node->left;
-
-                // If the node has two children, we find its in-order
-                // predecessor and copy the predecessor's data into the node.
-                // Then we recursively delete the predecessor, since it's
-                // guaranteed to have at most one child
-                while (heir->right != nullptr) {
-                    heir = heir->right;
-                }
-
-                node->value = heir->value;
-                value = heir->value;
-            }
-        }
-
-        // Go further down the branches to locate the node to remove
-        direction = (node->value < value) ? LEFT : RIGHT;
-        if (direction == LEFT) {
-            node->left = removeRecursive(node->left, value, done);
-        } else {
-            node->right = removeRecursive(node->right, value, done);
-        }
-
-        if (done == false) {
-            node = removeBalance(node, value, done);
-        }
-
-        return node;
-    }
-
-    Node* removeBalance(Node* note, V& value, bool done) {
-    	// Fixme: Implement this if top down doesn't work.
-    	Node* foo = nullptr;
-    	return foo;
     }
 
     int verifyTree(void) {
         return redBlackAssert(treeRoot);
-    }
-
-    bool remove(const V& value) {
-
-        bool done = false;
-
-        treeRoot = removeRecursive(value, &done);
-
-        if (treeRoot != nullptr) {
-            treeRoot->color = BLACK;
-        }
-
-        return true;
-    }
-
-    void innerLoop(Node* q, Node* p, Node* g, Node* f, int& direction, V& value) {
-
-    	int lastDireciton = direction;
-
-    	// Update helpers
-    	g = p;
-    	p = q;
-
-    	if (direction == LEFT) {
-    		q = q->left;
-    	} else {
-    		q = q->right;
-    	}
-
-    	if (q->value < value) {
-    		direction = RIGHT;
-    	} else {
-    		direction = LEFT;
-    	}
-
-    	// Save found node
-    	if (q->value == value)
-    		f = q;
-
-    	/*
-    	if (isRed(q) != true && isRed())
-
-            // Push the red node down
-            if (!is_red(q) && !is_red(q->link[dir]))
-            {
-                if (is_red(q->link[!dir]))
-                {
-                    p = p->link[last] = jsw_single(q, dir);
-                }
-                else if (!is_red(q->link[!dir]))
-                {
-                    struct jsw_node *s = p->link[!last];
-
-                    if (s != NULL)
-                    {
-                        if (!is_red(s->link[!last]) && !is_red(s->link[last]))
-                        {
-                            // Color flip
-                            p->red = 0;
-                            s->red = 1;
-                            q->red = 1;
-                        }
-                        else
-                        {
-                            int dir2 = g->link[1] == p;
-
-                            if (is_red(s->link[last]))
-                            {
-                                g->link[dir2] = jsw_double(p, last);
-                            }
-                            else if (is_red(s->link[!last]))
-                            {
-                                g->link[dir2] = jsw_single(p, last);
-                            }
-
-                            // Ensure correct coloring
-                            q->red = g->link[dir2]->red = 1;
-                            g->link[dir2]->link[0]->red = 0;
-                            g->link[dir2]->link[1]->red = 0;
-                        }
-                    }
-                }
-            }
-            */
-    }
-
-    void topDownRemove(const V& value) {
-
-    	if (treeRoot == nullptr)
-    		return;
-
-        Node* head = nullptr;	// False tree root
-        Node* q = nullptr;
-        Node* p = nullptr;
-        Node* g = nullptr;
-        Node* f = nullptr;
-        int direction = RIGHT;
-
-        q = &head;
-        q->right = treeRoot;
-
-        while (true) {
-        	if (direction == LEFT) {
-        		while (q->left != nullptr) {
-        			innerLoop(q, p, g, f, direction, value);
-        		}
-        	} else {
-        		while (q->right != nullptr) {
-        			innerLoop(q, p, g, f, direction, value);
-        		}
-        	}
-        }
-
-        // Replace and remove if found
-        if (f != nullptr) {
-
-        	f->value = q->value;
-
-        	if (p->right == q) {
-        		if (q->left == nullptr) {
-        			p->right = q->right;
-        		} else {
-       				p->right = q->left;
-        		}
-        	} else {
-        		if (q->left == nullptr) {
-        			p->left = q->right;
-        		} else {
-       				p->left = q->left;
-        		}
-        	}
-
-        	delete q;
-        }
-
-        // Update root and make it black
-        treeRoot = head->right;
-		if (treeRoot != nullptr) {
-			treeRoot->color = BLACK;
-		}
-    }
-
- private:
-
-    bool isRed(Node* node) {
-        if (node != nullptr && node->color == RED)
-            return true;
-        else
-            return false;
-    }
-
-    bool isBlack(Node* node) {
-        if (node != nullptr && node->color == BLACK)
-            return true;
-        else
-            return false;
-    }
-
-    Node* singleRotation(Node* root, int direction) {
-
-        Node* newRoot = nullptr;
-
-        if (direction == LEFT) {
-
-            newRoot = root->right;
-            root->right = newRoot->left;
-            newRoot->left = root;
-
-        } else {    // direction == RIGHT
-
-            newRoot = root->left;
-            root->left = newRoot->right;
-            newRoot->right = root;
-
-        }
-
-        root->color = RED;
-        newRoot->color = BLACK;
-
-        return newRoot;
-    }
-
-    Node* doubleRotation(Node* root, int direction) {
-
-        Node* temp = nullptr;
-
-        if (direction == LEFT) {
-            root->right = singleRotation(root->right, RIGHT);
-            temp = singleRotation(root, LEFT);
-        } else {    // direction == RIGHT
-            root->left = singleRotation(root->left, LEFT);
-            temp = singleRotation(root, RIGHT);
-        }
-
-        return temp;
     }
 
     int redBlackAssert(Node* root) {
@@ -650,8 +164,8 @@ template<typename V> class RedBlackTree {
             return 1;
         }
 
-        Node* leftNode = root->left;
-        Node* rightNode = root->right;
+        Node* leftNode = root->link[LEFT];
+        Node* rightNode = root->link[RIGHT];
 
         // Check for consecutive red links
         if (isRed(root)) {
@@ -689,6 +203,238 @@ template<typename V> class RedBlackTree {
         } else {
             return 0;
         }
+    }
+// END DEBUGGING HELPER FUNCTIONS
+
+
+    // By design do not support the operator[]. While the syntax is cool, the
+    // usage here is not intuitive which makes it prone to developer error.
+    // -- Is this fundamentally a search, or an insert function? Both?
+    // -- What is returned if noting is stored under that key?
+    // -- What happens if there is something already there?
+    //
+    // V& operator[](const K& key);
+
+    V& find(const K& key);
+
+    // Inserts a new element with the given key, if the same key is already
+    // present the value will be overwritten.
+    void insert(const K& key, const V& value) {
+        topDownInsert(key, value);
+    }
+
+    V remove(const K& key) {
+        return topDownRemove(key);
+    }
+
+ private:
+
+    void topDownInsert(const K& key, const V& value) {
+
+        if (treeRoot == nullptr) {
+            treeRoot = new Node(key, value);
+            treeRoot->color = BLACK;
+            return;
+        }
+
+        // FIXME: Rename to "falseTreeRoot"
+        Node head;   // False tree root
+        Node* g = nullptr;  // Grandparent & parent
+        Node* t = nullptr;
+        Node* p = nullptr;  // Iterator & parent
+        Node* q = nullptr;
+        int direction = -1;
+        int lastDirection = -1;
+
+        // Set up helpers
+        t = &head;
+        t->link[RIGHT] = treeRoot;
+        q = treeRoot;
+
+        // Search down the tree
+        while (true) {
+
+            if (q == nullptr) {
+                // Insert new node at the bottom
+                q = new Node(key, value);
+                p->link[direction] = q;
+
+            } else if (isRed(q->link[LEFT]) && isRed(q->link[RIGHT])) {
+                // Color flip
+                q->color = RED;
+                q->link[LEFT]->color = BLACK;
+                q->link[RIGHT]->color = BLACK;
+            }
+
+            // Fix red violation
+            if (isRed(q) && isRed(p)) {
+
+                int direction2 = t->link[RIGHT] == g;
+
+                if (q == p->link[lastDirection]) {
+                    t->link[direction2] = singleRotation(g, !lastDirection);
+                } else {
+                    t->link[direction2] = doubleRotation(g, !lastDirection);
+                }
+            }
+
+            // Stop if found
+            if (q->value == value) {
+                break;
+            }
+
+            lastDirection = direction;
+            direction = q->value < value;
+
+            // Update helpers
+            if (g != NULL) {
+                t = g;
+            }
+
+            g = p, p = q;
+            q = q->link[direction];
+        }
+
+        // Update root
+        treeRoot = head.link[RIGHT];
+
+        // Make root black
+        treeRoot->color = BLACK;
+    }
+
+    V topDownRemove(const K& key) {
+
+    }
+
+    /*
+    int jsw_remove(struct jsw_tree *tree, int data)
+    {
+        if (tree->root != NULL)
+        {
+            struct jsw_node head = { 0 }; // False tree root
+            struct jsw_node *q, *p, *g; // Helpers
+            struct jsw_node *f = NULL;  // Found item
+            int dir = 1;
+
+            // Set up helpers
+            q = &head;
+            g = p = NULL;
+            q->link[1] = tree->root;
+
+            // Search and push a red down
+            while (q->link[dir] != NULL)
+            {
+                int last = dir;
+
+                // Update helpers
+                g = p, p = q;
+                q = q->link[dir];
+                dir = q->data < data;
+
+                // Save found node
+                if (q->data == data)
+                {
+                    f = q;
+                }
+
+                // Push the red node down
+                if (!is_red(q) && !is_red(q->link[dir]))
+                {
+                    if (is_red(q->link[!dir]))
+                    {
+                        p = p->link[last] = jsw_single(q, dir);
+                    }
+                    else if (!is_red(q->link[!dir]))
+                    {
+                        struct jsw_node *s = p->link[!last];
+
+                        if (s != NULL)
+                        {
+                            if (!is_red(s->link[!last]) && !is_red(s->link[last]))
+                            {
+                                // Color flip
+                                p->red = 0;
+                                s->red = 1;
+                                q->red = 1;
+                            }
+                            else
+                            {
+                                int dir2 = g->link[1] == p;
+
+                                if (is_red(s->link[last]))
+                                {
+                                    g->link[dir2] = jsw_double(p, last);
+                                }
+                                else if (is_red(s->link[!last]))
+                                {
+                                    g->link[dir2] = jsw_single(p, last);
+                                }
+
+                                // Ensure correct coloring
+                                q->red = g->link[dir2]->red = 1;
+                                g->link[dir2]->link[0]->red = 0;
+                                g->link[dir2]->link[1]->red = 0;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Replace and remove if found
+            if (f != NULL)
+            {
+                f->data = q->data;
+                p->link[p->link[1] == q] = q->link[q->link[0] == NULL];
+                free(q);
+            }
+
+            // Update root and make it black
+            tree->root = head.link[1];
+
+            if (tree->root != NULL)
+            {
+                tree->root->red = 0;
+            }
+        }
+
+        return 1;
+    }
+    */
+
+    bool isRed(Node* node) {
+        if (node != nullptr && node->color == RED)
+            return true;
+        else
+            return false;
+    }
+
+    bool isBlack(Node* node) {
+        if (node != nullptr && node->color == BLACK)
+            return true;
+        else
+            return false;
+    }
+
+    Node* singleRotation(Node* root, int direction) {
+
+        Node* temp = root->link[!direction];
+        root->link[!direction] = temp->link[direction];
+        temp->link[direction] = root;
+
+        root->color = RED;
+        temp->color = BLACK;
+
+        return temp;
+    }
+
+    Node* doubleRotation(Node* root, int direction) {
+
+        Node* temp = nullptr;
+
+        root->link[!direction] = singleRotation(root->link[!direction], !direction);
+        temp = singleRotation(root, direction);
+
+        return temp;
     }
 
     Node* treeRoot;
