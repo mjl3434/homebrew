@@ -76,12 +76,15 @@ template<typename K, typename V> class RedBlackTree {
     class Node {
      public:
         Node(const K theKey, const V theValue)
-                        : link{ nullptr, nullptr },
+                        : link { nullptr, nullptr },
                           color(RED),
                           key(theKey),
                           value(theValue) {
         }
-        Node(void) : link{ nullptr, nullptr }, color(RED) { }
+        Node(void)
+                        : link { nullptr, nullptr },
+                          color(RED) {
+        }
         Node* link[2];
         int color;
         K key;
@@ -89,7 +92,9 @@ template<typename K, typename V> class RedBlackTree {
     };
 
     // Constructor
-    RedBlackTree() : treeRoot(nullptr) { }
+    RedBlackTree()
+                    : treeRoot(nullptr) {
+    }
 
     // Copy Constructor
     RedBlackTree(const RedBlackTree& from);
@@ -108,7 +113,8 @@ template<typename K, typename V> class RedBlackTree {
 
     }
 
-// BEGIN DEBUGGING HELPER FUNCTIONS
+    // BEGIN DEBUGGING HELPER FUNCTIONS
+    /*
     int findHeight(Node* node) {
         if (node == nullptr) {
             return -1;
@@ -180,8 +186,7 @@ template<typename K, typename V> class RedBlackTree {
 
         // Verify binary tree properties (left < root && right > root)
         if ((leftNode != nullptr && leftNode->value >= root->value)
-                        || (rightNode != nullptr
-                                        && rightNode->value <= root->value)) {
+                        || (rightNode != nullptr && rightNode->value <= root->value)) {
             std::cerr << "Binary tree violation!\n";
             return 0;
         }
@@ -204,13 +209,13 @@ template<typename K, typename V> class RedBlackTree {
             return 0;
         }
     }
-// END DEBUGGING HELPER FUNCTIONS
-
+    */
+    // END DEBUGGING HELPER FUNCTIONS
 
     // By design do not support the operator[]. While the syntax is cool, the
     // usage here is not intuitive which makes it prone to developer error.
     // -- Is this fundamentally a search, or an insert function? Both?
-    // -- What is returned if noting is stored under that key?
+    // -- What is returned if nothing is stored under that key?
     // -- What happens if there is something already there?
     //
     // V& operator[](const K& key);
@@ -237,66 +242,66 @@ template<typename K, typename V> class RedBlackTree {
             return;
         }
 
-        // FIXME: Rename to "falseTreeRoot"
-        Node head;   // False tree root
-        Node* g = nullptr;  // Grandparent & parent
+        Node fakeTreeRoot;
+        Node* grandparent = nullptr;
         Node* t = nullptr;
-        Node* p = nullptr;  // Iterator & parent
-        Node* q = nullptr;
+        Node* parent = nullptr;
+        Node* current = nullptr;
         int direction = -1;
         int lastDirection = -1;
 
         // Set up helpers
-        t = &head;
+        t = &fakeTreeRoot;
         t->link[RIGHT] = treeRoot;
-        q = treeRoot;
+        current = treeRoot;
 
         // Search down the tree
         while (true) {
 
-            if (q == nullptr) {
+            if (current == nullptr) {
                 // Insert new node at the bottom
-                q = new Node(key, value);
-                p->link[direction] = q;
+                current = new Node(key, value);
+                parent->link[direction] = current;
 
-            } else if (isRed(q->link[LEFT]) && isRed(q->link[RIGHT])) {
+            } else if (isRed(current->link[LEFT]) && isRed(current->link[RIGHT])) {
                 // Color flip
-                q->color = RED;
-                q->link[LEFT]->color = BLACK;
-                q->link[RIGHT]->color = BLACK;
+                current->color = RED;
+                current->link[LEFT]->color = BLACK;
+                current->link[RIGHT]->color = BLACK;
             }
 
             // Fix red violation
-            if (isRed(q) && isRed(p)) {
+            if (isRed(current) && isRed(parent)) {
 
-                int direction2 = t->link[RIGHT] == g;
+                int direction2 = t->link[RIGHT] == grandparent;
 
-                if (q == p->link[lastDirection]) {
-                    t->link[direction2] = singleRotation(g, !lastDirection);
+                if (current == parent->link[lastDirection]) {
+                    t->link[direction2] = singleRotation(grandparent, !lastDirection);
                 } else {
-                    t->link[direction2] = doubleRotation(g, !lastDirection);
+                    t->link[direction2] = doubleRotation(grandparent, !lastDirection);
                 }
             }
 
             // Stop if found
-            if (q->key == key) {
+            if (current->key == key) {
                 break;
             }
 
             lastDirection = direction;
-            direction = q->key < key;
+            direction = current->key < key;
 
             // Update helpers
-            if (g != NULL) {
-                t = g;
+            if (grandparent != NULL) {
+                t = grandparent;
             }
 
-            g = p, p = q;
-            q = q->link[direction];
+            grandparent = parent;
+            parent = current;
+            current = current->link[direction];
         }
 
         // Update root
-        treeRoot = head.link[RIGHT];
+        treeRoot = fakeTreeRoot.link[RIGHT];
 
         // Make root black
         treeRoot->color = BLACK;
@@ -304,69 +309,69 @@ template<typename K, typename V> class RedBlackTree {
 
     V topDownRemove(const K& key, bool& success) {
 
-        V dataToReturn = {0};
+        V dataToReturn = { 0 };
 
         if (treeRoot == nullptr) {
             success = false;
             return dataToReturn;
         }
 
-        Node head;  // FIXME: Rename to falseTreeRoot
-        Node* q = nullptr;
-        Node* p = nullptr;
-        Node* g = nullptr;
-        Node* f = nullptr;
-        int direction = -1;
+        Node fakeTreeRoot;
+        Node* current = nullptr;
+        Node* parent = nullptr;
+        Node* grandparent = nullptr;
+        Node* found = nullptr;
+        int direction = RIGHT;
 
         // Set up helpers
-        q = &head;
-        q->link[RIGHT] = treeRoot;
+        current = &fakeTreeRoot;
+        current->link[RIGHT] = treeRoot;
 
         // Search and push a red down
-        while (q->link[direction] != nullptr) {
+        while (current->link[direction] != nullptr) {
 
             int lastDirection = direction;
 
             // Update helpers
-            g = p;
-            p = q;
-            q = q->link[direction];
-            direction = q->key < key;
+            grandparent = parent;
+            parent = current;
+            current = current->link[direction];
+            direction = current->key < key;
 
             // Save found node
-            if (q->key == key) {
-                f = q;
+            if (current->key == key) {
+                found = current;
             }
 
-            if (!isRed(q) && !isRed(q->link[direction])) {
-                if (isRed(q->link[!direction])) {
-                    p = p->link[lastDirection] = singleRotation(q, direction);
-                }
-                else if (!isRed(q->link[!direction])) {
+            if (!isRed(current) && !isRed(current->link[direction])) {
+                if (isRed(current->link[!direction])) {
 
-                    Node* s = p->link[!lastDirection];
+                    parent = parent->link[lastDirection] = singleRotation(q, direction);
+
+                } else if (!isRed(current->link[!direction])) {
+
+                    Node* s = parent->link[!lastDirection];
 
                     if (s != nullptr) {
                         if (!isRed(s->link[!lastDirection]) && !isRed(s->link[lastDirection])) {
                             // Color flip
-                            p->color = BLACK;
+                            parent->color = BLACK;
                             s->color = RED;
-                            q->color = RED;
+                            current->color = RED;
                         } else {
-                            int direction2 = g->link[RIGHT] == p;
+                            int direction2 = grandparent->link[RIGHT] == parent;
 
                             if (isRed(s->link[lastDirection])) {
-                                g->link[direction2] = doubleRotation(p, lastDirection);
-                            }
-                            else if (isRed(s->link[!lastDirection])) {
-                                g->link[direction2] = singleRotation(p, lastDirection);
+                                grandparent->link[direction2] = doubleRotation(parent, lastDirection);
+                            } else if (isRed(s->link[!lastDirection])) {
+                                grandparent->link[direction2] = singleRotation(parent, lastDirection);
                             }
 
                             // Ensure correct coloring
-                            q->color = RED;
-                            g->link[direction2]->color = RED;
-                            g->link[direction2]->link[LEFT]->color = BLACK;
-                            g->link[direction2]->link[RIGHT]->color = BLACK;
+                            current->color = RED;
+                            grandparent->link[direction2]->color = RED;
+                            grandparent->link[direction2]->link[LEFT]->color = BLACK;
+                            grandparent->link[direction2]->link[RIGHT]->color = BLACK;
                         }
                     }
                 }
@@ -374,21 +379,21 @@ template<typename K, typename V> class RedBlackTree {
         }
 
         // Replace and remove if found
-        if (f != nullptr) {
+        if (found != nullptr) {
 
             // Save the data we are about to overwrite
-            dataToReturn = f->value;
+            dataToReturn = found->value;
 
-            f->key = q->key;
-            f->value = q->value;
-            p->link[p->link[RIGHT] == q] = q->link[q->link[LEFT] == nullptr];
-            free(q);
+            found->key = current->key;
+            found->value = current->value;
+            parent->link[parent->link[RIGHT] == current] = current->link[current->link[LEFT] == nullptr];
+            free(current);
 
             success = true;
         }
 
         // Update root and make it black
-        treeRoot = head.link[RIGHT];
+        treeRoot = fakeTreeRoot.link[RIGHT];
         if (treeRoot != nullptr) {
             treeRoot->color = BLACK;
         }
