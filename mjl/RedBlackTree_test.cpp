@@ -71,8 +71,21 @@ bool runRedBlackTreeTests(void) {
 	}
 
 
-	//        Run assert function after each case
-	//        Trace through insertion use cases
+	for (index = 0; index < (sizeof(testData)/sizeof(testData[0])/4); index++) {
+		cout << "----------------------------------------------------\n";
+		cout << "Test " << index+1 << ", removing: " << testData[index] << " from Red-Black Tree.\n";
+		bool success = false;
+		redBlackTree.remove(testData[index], success);
+		if (success == true) {
+		    cout << "Removal returned success.\n";
+		}
+		else {
+		    cout << "Removal returned failure.\n";
+		}
+		redBlackTree.verifyTree();
+		redBlackTree.printLevelOrder();
+		cout << "\n\n";
+	}
 
 	retval = true;
 

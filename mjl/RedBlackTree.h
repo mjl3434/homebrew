@@ -223,8 +223,8 @@ template<typename K, typename V> class RedBlackTree {
         topDownInsert(key, value);
     }
 
-    V remove(const K& key) {
-        return topDownRemove(key);
+    V remove(const K& key, bool& success) {
+        return topDownRemove(key, success);
     }
 
  private:
@@ -279,12 +279,12 @@ template<typename K, typename V> class RedBlackTree {
             }
 
             // Stop if found
-            if (q->value == value) {
+            if (q->key == key) {
                 break;
             }
 
             lastDirection = direction;
-            direction = q->value < value;
+            direction = q->key < key;
 
             // Update helpers
             if (g != NULL) {
@@ -302,104 +302,99 @@ template<typename K, typename V> class RedBlackTree {
         treeRoot->color = BLACK;
     }
 
-    V topDownRemove(const K& key) {
+    V topDownRemove(const K& key, bool& success) {
 
-    }
+        V dataToReturn = {0};
 
-    /*
-    int jsw_remove(struct jsw_tree *tree, int data)
-    {
-        if (tree->root != NULL)
-        {
-            struct jsw_node head = { 0 }; // False tree root
-            struct jsw_node *q, *p, *g; // Helpers
-            struct jsw_node *f = NULL;  // Found item
-            int dir = 1;
+        if (treeRoot == nullptr) {
+            success = false;
+            return dataToReturn;
+        }
 
-            // Set up helpers
-            q = &head;
-            g = p = NULL;
-            q->link[1] = tree->root;
+        Node head;  // FIXME: Rename to falseTreeRoot
+        Node* q = nullptr;
+        Node* p = nullptr;
+        Node* g = nullptr;
+        Node* f = nullptr;
+        int direction = -1;
 
-            // Search and push a red down
-            while (q->link[dir] != NULL)
-            {
-                int last = dir;
+        // Set up helpers
+        q = &head;
+        q->link[RIGHT] = treeRoot;
 
-                // Update helpers
-                g = p, p = q;
-                q = q->link[dir];
-                dir = q->data < data;
+        // Search and push a red down
+        while (q->link[direction] != nullptr) {
 
-                // Save found node
-                if (q->data == data)
-                {
-                    f = q;
+            int lastDirection = direction;
+
+            // Update helpers
+            g = p;
+            p = q;
+            q = q->link[direction];
+            direction = q->key < key;
+
+            // Save found node
+            if (q->key == key) {
+                f = q;
+            }
+
+            if (!isRed(q) && !isRed(q->link[direction])) {
+                if (isRed(q->link[!direction])) {
+                    p = p->link[lastDirection] = singleRotation(q, direction);
                 }
+                else if (!isRed(q->link[!direction])) {
 
-                // Push the red node down
-                if (!is_red(q) && !is_red(q->link[dir]))
-                {
-                    if (is_red(q->link[!dir]))
-                    {
-                        p = p->link[last] = jsw_single(q, dir);
-                    }
-                    else if (!is_red(q->link[!dir]))
-                    {
-                        struct jsw_node *s = p->link[!last];
+                    Node* s = p->link[!lastDirection];
 
-                        if (s != NULL)
-                        {
-                            if (!is_red(s->link[!last]) && !is_red(s->link[last]))
-                            {
-                                // Color flip
-                                p->red = 0;
-                                s->red = 1;
-                                q->red = 1;
+                    if (s != nullptr) {
+                        if (!isRed(s->link[!lastDirection]) && !isRed(s->link[lastDirection])) {
+                            // Color flip
+                            p->color = BLACK;
+                            s->color = RED;
+                            q->color = RED;
+                        } else {
+                            int direction2 = g->link[RIGHT] == p;
+
+                            if (isRed(s->link[lastDirection])) {
+                                g->link[direction2] = doubleRotation(p, lastDirection);
                             }
-                            else
-                            {
-                                int dir2 = g->link[1] == p;
-
-                                if (is_red(s->link[last]))
-                                {
-                                    g->link[dir2] = jsw_double(p, last);
-                                }
-                                else if (is_red(s->link[!last]))
-                                {
-                                    g->link[dir2] = jsw_single(p, last);
-                                }
-
-                                // Ensure correct coloring
-                                q->red = g->link[dir2]->red = 1;
-                                g->link[dir2]->link[0]->red = 0;
-                                g->link[dir2]->link[1]->red = 0;
+                            else if (isRed(s->link[!lastDirection])) {
+                                g->link[direction2] = singleRotation(p, lastDirection);
                             }
+
+                            // Ensure correct coloring
+                            q->color = RED;
+                            g->link[direction2]->color = RED;
+                            g->link[direction2]->link[LEFT]->color = BLACK;
+                            g->link[direction2]->link[RIGHT]->color = BLACK;
                         }
                     }
                 }
             }
-
-            // Replace and remove if found
-            if (f != NULL)
-            {
-                f->data = q->data;
-                p->link[p->link[1] == q] = q->link[q->link[0] == NULL];
-                free(q);
-            }
-
-            // Update root and make it black
-            tree->root = head.link[1];
-
-            if (tree->root != NULL)
-            {
-                tree->root->red = 0;
-            }
         }
 
-        return 1;
+        // Replace and remove if found
+        if (f != nullptr) {
+
+            // Save the data we are about to overwrite
+            dataToReturn = f->value;
+
+            f->key = q->key;
+            f->value = q->value;
+            p->link[p->link[RIGHT] == q] = q->link[q->link[LEFT] == nullptr];
+            free(q);
+
+            success = true;
+        }
+
+        // Update root and make it black
+        treeRoot = head.link[RIGHT];
+        if (treeRoot != nullptr) {
+            treeRoot->color = BLACK;
+        }
+
+        return dataToReturn;
     }
-    */
 
     bool isRed(Node* node) {
         if (node != nullptr && node->color == RED)
