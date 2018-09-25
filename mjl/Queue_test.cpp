@@ -26,43 +26,42 @@
 using namespace std;
 using namespace mjl::homebrew;
 
-bool runQueueTests(void)
-{
-	int i = 1;
+bool runQueueTests(void) {
+    int i = 1;
 
-	Queue<int> queue;
+    Queue<int> queue;
 
-	while(i <= 10) {
-		queue.enqueue(i);
-		cout << "Enqueuing " << i << "\n";
-		i++;
-	}
+    while (i <= 10) {
+        queue.enqueue(i);
+        cout << "Enqueuing " << i << "\n";
+        i++;
+    }
 
-	cout << "Size of queue: " << queue.size() << "\n";
-	cout << "Front of queue: " << queue.front() << "\n";
-	cout << "Back of queue: " << queue.back() << "\n";
+    cout << "Size of queue: " << queue.size() << "\n";
+    cout << "Front of queue: " << queue.front() << "\n";
+    cout << "Back of queue: " << queue.back() << "\n";
 
-	cout << "Enqueuing two other elements.\n";
-	queue.enqueue(i++);
-	queue.enqueue(i++);
-	cout << "Size of queue: " << queue.size() << "\n";
+    cout << "Enqueuing two other elements.\n";
+    queue.enqueue(i++);
+    queue.enqueue(i++);
+    cout << "Size of queue: " << queue.size() << "\n";
 
-	cout << "Dequeuing one element.\n";
-	queue.dequeue();
-	cout << "Size of queue: " << queue.size() << "\n";
+    cout << "Dequeuing one element.\n";
+    queue.dequeue();
+    cout << "Size of queue: " << queue.size() << "\n";
 
-	while (queue.size() > 0) {
-		cout << "Dequeuing " << queue.front() << "\n";
-		queue.dequeue();
-	}
+    while (queue.size() > 0) {
+        cout << "Dequeuing " << queue.front() << "\n";
+        queue.dequeue();
+    }
 
-	// Tested:
-	//void enqueue(const T& data)
-	//void dequeue(void)
-	//T front(void)
-	//T back(void)
-	//unsigned int size(void)
+    // Tested:
+    //void enqueue(const T& data)
+    //void dequeue(void)
+    //T front(void)
+    //T back(void)
+    //unsigned int size(void)
 
-	return true;
+    return true;
 }
 

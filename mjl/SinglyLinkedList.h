@@ -25,355 +25,338 @@
 namespace mjl {
 namespace homebrew {
 
-	/*********************
-	 * Table of contents *
-	 *********************
-	 *
-	 * SinglyLinkedList<T> class
-	 *     - Rule of 3 functions
-	 *     - front()
-	 *     - back()
-	 *     - begin()
-	 *     - end()
-	 *     - pushFront()
-	 *     - pushBack()
-	 *     - popFront()
-	 *     - size()
-	 *
-	 * SinglyLinkedList<T>::iterator class
-	 *     - operator!=()
-	 *     - operator++()
-	 *     - operator*()
-	 *
-	 * Stack<T> class
-	 *     - push()
-	 *     - pop()
-	 *     - top()
-	 *     - size()
-	 *
-	 * Queue<T> class
-	 *     - enqueue()
-	 *     - dequeue()
-	 *     - front()
-	 *     - back()
-	 *     - size()
-	 */
+/*********************
+ * Table of contents *
+ *********************
+ *
+ * SinglyLinkedList<T> class
+ *     - Rule of 5 functions
+ *     - front()
+ *     - back()
+ *     - begin()
+ *     - end()
+ *     - pushFront()
+ *     - pushBack()
+ *     - popFront()
+ *     - size()
+ *
+ * SinglyLinkedList<T>::iterator class
+ *     - operator!=()
+ *     - operator++()
+ *     - operator*()
+ *
+ * Stack<T> class
+ *     - push()
+ *     - pop()
+ *     - top()
+ *     - size()
+ *
+ * Queue<T> class
+ *     - enqueue()
+ *     - dequeue()
+ *     - front()
+ *     - back()
+ *     - size()
+ */
 
-template <typename T> class SinglyLinkedList
-{
-public:
+template<typename T> class SinglyLinkedList {
+ public:
 
-	class Node
-	{
-	public:
-		Node(T dataPassedByValue) : data(dataPassedByValue), next(nullptr) { }
-		T data;
-		Node* next;
-	};
+    class Node {
+     public:
+        Node(T dataPassedByValue)
+                        : data(dataPassedByValue),
+                          next(nullptr) {
+        }
+        T data;
+        Node* next;
+    };
 
-	class iterator
-	{
-	public:
+    class iterator {
+     public:
 
-		iterator() : node(nullptr) { }
-		iterator(Node* theNode) : node(theNode) { }
+        iterator()
+                        : node(nullptr) {
+        }
+        iterator(Node* theNode)
+                        : node(theNode) {
+        }
 
-	    T& operator*()
-		{
-			return node->data;
-		}
+        T& operator*() {
+            return node->data;
+        }
 
-	    // Confusingly, the 'int' is used to denote postfix operator in C++
-	    void operator++(int)
-	    {
-	    	if (this->node != nullptr)
-	    		this->node = this->node->next;
-	    }
+        // Confusingly, the 'int' is used to denote postfix operator in C++
+        void operator++(int) {
+            if (this->node != nullptr)
+                this->node = this->node->next;
+        }
 
-	    bool operator!=(const iterator& it)
-		{
-	    	return it.node != this->node;
-		}
+        bool operator!=(const iterator& it) {
+            return it.node != this->node;
+        }
 
-	    Node* node;
-	};
+        Node* node;
+    };
 
-	//
-	// The Rule of Five Functions
-	//
+    //
+    // The Rule of Five Functions
+    //
 
-	// Constructor
-	SinglyLinkedList() : head(nullptr), tail(nullptr), theSize(0) { }
+    // Constructor
+    SinglyLinkedList()
+                    : head(nullptr),
+                      tail(nullptr),
+                      theSize(0) {
+    }
 
-	// Copy constructor (1/5)
-	SinglyLinkedList(const SinglyLinkedList& toCopy)
-	{
-		head = nullptr;
-		tail = nullptr;
+    // Copy constructor (1/5)
+    SinglyLinkedList(const SinglyLinkedList& toCopy) {
+        head = nullptr;
+        tail = nullptr;
 
-		Node* current = toCopy.head;
+        Node* current = toCopy.head;
 
-		// While there is data in the list we are copying
-		while (current != nullptr) {
+        // While there is data in the list we are copying
+        while (current != nullptr) {
 
-			// This allocates memory to create a copy of the node
-			pushBack(current->data);
+            // This allocates memory to create a copy of the node
+            pushBack(current->data);
 
-			// Keep track of number of elements as we add them
-			theSize++;
+            // Keep track of number of elements as we add them
+            theSize++;
 
-			current = current->next;
-		}
+            current = current->next;
+        }
 
-		// List size of new object obviously will be the same size
-		theSize = toCopy.size();
-	}
+        // List size of new object obviously will be the same size
+        theSize = toCopy.size();
+    }
 
-	// Move constructor (2/5)
-	SinglyLinkedList(SinglyLinkedList&& from) {
-		theSize = from.theSize;
-		head = from.head;
-		from.head = nullptr;
-		tail = from.tail;
-		from.tail = nullptr;
-	}
+    // Move constructor (2/5)
+    SinglyLinkedList(SinglyLinkedList&& from) {
+        theSize = from.theSize;
+        head = from.head;
+        from.head = nullptr;
+        tail = from.tail;
+        from.tail = nullptr;
+    }
 
-	// Assignment operator (3/5)
-	SinglyLinkedList& operator=(const SinglyLinkedList& source)
-	{
-		Node* srcPtr = source.head;
-		Node* dstPtr = head;
-		Node* dstPtrPrev = nullptr;
-		Node* temp = nullptr;
+    // Assignment operator (3/5)
+    SinglyLinkedList& operator=(const SinglyLinkedList& source) {
+        Node* srcPtr = source.head;
+        Node* dstPtr = head;
+        Node* dstPtrPrev = nullptr;
+        Node* temp = nullptr;
 
-		theSize = 0;
+        theSize = 0;
 
-		// Case 1: The length of source > destination. Copy elements by value
-		//         until destination is out of nodes, then pushBack new nodes.
-		//
-		// Case 2: The length of source == destination. Simply copy each node
-		//         by value.
-		//
-		// Case 3: The length of source < destination. Copy elements by value,
-		//         and once done free memory from rest of source list.
+        // Case 1: The length of source > destination. Copy elements by value
+        //         until destination is out of nodes, then pushBack new nodes.
+        //
+        // Case 2: The length of source == destination. Simply copy each node
+        //         by value.
+        //
+        // Case 3: The length of source < destination. Copy elements by value,
+        //         and once done free memory from rest of source list.
 
-		while (srcPtr != nullptr) {
+        while (srcPtr != nullptr) {
 
-			if (dstPtr != nullptr) {
+            if (dstPtr != nullptr) {
 
-				// Case 1 && Case 2:
-				dstPtr->data = srcPtr->data;
-				dstPtrPrev = dstPtr;
-				dstPtr = dstPtr->next;
-				theSize++;
-			}
-			else {
+                // Case 1 && Case 2:
+                dstPtr->data = srcPtr->data;
+                dstPtrPrev = dstPtr;
+                dstPtr = dstPtr->next;
+                theSize++;
+            } else {
 
-				// Case 1:
-				pushBack(srcPtr->data);
-			}
-			srcPtr = srcPtr->next;
-		}
-		if (dstPtr != nullptr) {
+                // Case 1:
+                pushBack(srcPtr->data);
+            }
+            srcPtr = srcPtr->next;
+        }
+        if (dstPtr != nullptr) {
 
-			// Case 3:
+            // Case 3:
 
-			// Terminate the list
-			dstPtrPrev->next = nullptr;
+            // Terminate the list
+            dstPtrPrev->next = nullptr;
 
-			// Update tail pointer
-			this->tail = dstPtrPrev;
+            // Update tail pointer
+            this->tail = dstPtrPrev;
 
-			// Now free the remaining items
-			while (dstPtr != nullptr) {
-				temp = dstPtr;
-				dstPtr = dstPtr->next;
-				delete temp;
-			}
-		}
+            // Now free the remaining items
+            while (dstPtr != nullptr) {
+                temp = dstPtr;
+                dstPtr = dstPtr->next;
+                delete temp;
+            }
+        }
 
-		return *this;
-	}
+        return *this;
+    }
 
-	// Move assignment operator (4/5)
-	SinglyLinkedList& operator=(SinglyLinkedList&& from) {
+    // Move assignment operator (4/5)
+    SinglyLinkedList& operator=(SinglyLinkedList&& from) {
 
-		// Delete old list
-		Node* current = head;
-		while (current != nullptr) {
-			Node* deleteMe = current;
-			current = current->next;
-			delete deleteMe;
-		}
+        // Delete old list
+        Node* current = head;
+        while (current != nullptr) {
+            Node* deleteMe = current;
+            current = current->next;
+            delete deleteMe;
+        }
 
-		theSize = from.theSize;
-		head = from.head;
-		from.head = nullptr;
-		tail = from.tail;
-		from.tail = nullptr;
+        theSize = from.theSize;
+        head = from.head;
+        from.head = nullptr;
+        tail = from.tail;
+        from.tail = nullptr;
 
-		return *this;
-	}
+        return *this;
+    }
 
-	// Destructor (5/5)
-	virtual ~SinglyLinkedList()
-	{
-		Node* current = head;
-		Node* temp = nullptr;
+    // Destructor (5/5)
+    virtual ~SinglyLinkedList() {
+        Node* current = head;
+        Node* temp = nullptr;
 
-		while(current != nullptr) {
-			temp = current->next;
-			delete current;
-			current = temp;
-		}
-	}
+        while (current != nullptr) {
+            temp = current->next;
+            delete current;
+            current = temp;
+        }
+    }
 
-	//
-	// Public methods
-	//
+    //
+    // Public methods
+    //
 
-	unsigned int size(void) const
-	{
-		return theSize;
-	}
+    unsigned int size(void) const {
+        return theSize;
+    }
 
-	void pushFront(const T& dataPassed)
-	{
-		Node* newNode = new Node(dataPassed);
-		Node* temp = head;
+    void pushFront(const T& dataPassed) {
+        Node* newNode = new Node(dataPassed);
+        Node* temp = head;
 
-		head = newNode;
-		head->next = temp;
-		theSize++;
-	}
+        head = newNode;
+        head->next = temp;
+        theSize++;
+    }
 
-	void pushBack(const T& dataPassed)
-	{
-		Node* temp = new Node(dataPassed);
+    void pushBack(const T& dataPassed) {
+        Node* temp = new Node(dataPassed);
 
-		if (this->tail != nullptr) {
+        if (this->tail != nullptr) {
 
-			// pushBacking to non-empty list
-			this->tail->next = temp;
-			this->tail = temp;
-			// temp->next == nullptr already at Node::Node()
-		}
-		else {
-			// appending to an empty list
-			this->head = temp;
-			this->tail = temp;
-			// this->tail->next == nullptr already at SinglyLinkedList::SinglyLinkedList()
-		}
+            // pushBacking to non-empty list
+            this->tail->next = temp;
+            this->tail = temp;
+            // temp->next == nullptr already at Node::Node()
+        } else {
+            // appending to an empty list
+            this->head = temp;
+            this->tail = temp;
+            // this->tail->next == nullptr already at SinglyLinkedList::SinglyLinkedList()
+        }
 
-		// Obviously adding to a list increases it's theSize
-		theSize++;
-	}
+        // Obviously adding to a list increases it's theSize
+        theSize++;
+    }
 
-	void popFront(void)
-	{
-		Node* temp = head;
-		head = head->next;
-		theSize--;
-		delete temp;
-	}
+    void popFront(void) {
+        Node* temp = head;
+        head = head->next;
+        theSize--;
+        delete temp;
+    }
 
-	T front(void)
-	{
-		return head->data;
-	}
+    T front(void) {
+        return head->data;
+    }
 
-	T back(void)
-	{
-		return tail->data;
-	}
+    T back(void) {
+        return tail->data;
+    }
 
-	SinglyLinkedList<T>::iterator begin(void)
-	{
-		return SinglyLinkedList<T>::iterator(head);
-	}
+    SinglyLinkedList<T>::iterator begin(void) {
+        return SinglyLinkedList<T>::iterator(head);
+    }
 
-	SinglyLinkedList<T>::iterator end(void)
-	{
-		return SinglyLinkedList<T>::iterator(tail->next);
-	}
+    SinglyLinkedList<T>::iterator end(void) {
+        return SinglyLinkedList<T>::iterator(tail->next);
+    }
 
-private:
+ private:
 
-	Node* head;
-	Node* tail;
-	unsigned int theSize;
+    Node* head;
+    Node* tail;
+    unsigned int theSize;
 
-}; // end class SinglyLinkedList
+};
+// end class SinglyLinkedList
 
 /**
  * Stack (LIFO Queue)
  * A stack can be implemented as singly linked list with all operations on the
  * head of the list.
  */
-template <typename T> class Stack {
-public:
+template<typename T> class Stack {
+ public:
 
-	void push(const T& data)
-	{
-		list.pushFront(data);
-	}
+    void push(const T& data) {
+        list.pushFront(data);
+    }
 
-	void pop()
-	{
-		list.popFront();
-	}
+    void pop() {
+        list.popFront();
+    }
 
-	T top()
-	{
-		return list.front();
-	}
+    T top() {
+        return list.front();
+    }
 
-	unsigned int size()
-	{
-		return list.size();
-	}
+    unsigned int size() {
+        return list.size();
+    }
 
-private:
+ private:
 
-	SinglyLinkedList<T> list;
+    SinglyLinkedList<T> list;
 };
 
 // Queue (FIFO)
 //     A queue is just a list where enqueue() maps to pushBack() and
 //     dequeue() maps to popFront()
-template <typename T> class Queue
-{
-public:
-	void enqueue(const T& data)
-	{
-		list.pushBack(data);
-	}
+template<typename T> class Queue {
+ public:
+    void enqueue(const T& data) {
+        list.pushBack(data);
+    }
 
-	void dequeue(void)
-	{
-		list.popFront();
-	}
+    void dequeue(void) {
+        list.popFront();
+    }
 
-	T front(void)
-	{
-		return list.front();
-	}
+    T front(void) {
+        return list.front();
+    }
 
-	T back(void)
-	{
-		return list.back();
-	}
+    T back(void) {
+        return list.back();
+    }
 
-	unsigned int size(void)
-	{
-		return list.size();
-	}
+    unsigned int size(void) {
+        return list.size();
+    }
 
-private:
-	SinglyLinkedList<T> list;
+ private:
+    SinglyLinkedList<T> list;
 };
 
-}	// end namespace homebrew
-}	// end namespace mjl
+}    // end namespace homebrew
+}    // end namespace mjl
 
 #endif // SINGLYLINKEDLIST_H

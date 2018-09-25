@@ -26,33 +26,31 @@
 using namespace std;
 using namespace mjl::homebrew;
 
+bool runStackTests(void) {
+    int i = 1;
 
-bool runStackTests(void)
-{
-	int i = 1;
+    Stack<int> intStack;
 
-	Stack<int> intStack;
+    cout << "Size of intStack is " << intStack.size() << "\n";
 
-	cout << "Size of intStack is " << intStack.size() << "\n";
+    while (i <= 10) {
+        intStack.push(i);
+        cout << "Pushing " << i << "\n";
+        i++;
+    }
 
-	while(i <= 10) {
-		intStack.push(i);
-		cout << "Pushing " << i << "\n";
-		i++;
-	}
+    cout << "Size of intStack is " << intStack.size() << "\n";
 
-	cout << "Size of intStack is " << intStack.size() << "\n";
+    while (intStack.size() > 0) {
+        cout << "Popping " << intStack.top() << "\n";
+        intStack.pop();
+    }
 
-	while (intStack.size() > 0) {
-		cout << "Popping " << intStack.top() << "\n";
-		intStack.pop();
-	}
+    // Tested:
+    //void push(const T& data)
+    //void pop()
+    //T top()
+    //unsigned int size()
 
-	// Tested:
-	//void push(const T& data)
-	//void pop()
-	//T top()
-	//unsigned int size()
-
-	return true;
+    return true;
 }

@@ -26,39 +26,38 @@
 #include "SinglyLinkedList_test.h"
 #include "Stack_test.h"
 
-int main()
-{
-	bool status = false;
+int main() {
+    bool status = false;
 
-	status = runSinglyLinkedListTests();
-	if (status != true) {
-		return -1;
-	}
+    status = runSinglyLinkedListTests();
+    if (status != true) {
+        return -1;
+    }
 
-	status = runStackTests();
-	if (status != true) {
-		return -1;
-	}
+    status = runStackTests();
+    if (status != true) {
+        return -1;
+    }
 
-	status = runQueueTests();
-	if (status != true) {
-		return -1;
-	}
+    status = runQueueTests();
+    if (status != true) {
+        return -1;
+    }
 
-	status = runArrayTests();
-	if (status != true) {
-		return -1;
-	}
+    status = runArrayTests();
+    if (status != true) {
+        return -1;
+    }
 
-	status = runHashTableTests();
-	if (status != true) {
-		return -1;
-	}
+    status = runHashTableTests();
+    if (status != true) {
+        return -1;
+    }
 
-	status = runRedBlackTreeTests();
-	if (status != true) {
-		return -1;
-	}
+    status = runRedBlackTreeTests();
+    if (status != true) {
+        return -1;
+    }
 
-	return 0;
+    return 0;
 }

@@ -113,8 +113,9 @@ template<typename K, typename V> class RedBlackTree {
 
     }
 
+    //
     // BEGIN DEBUGGING HELPER FUNCTIONS
-    /*
+    //
     int findHeight(Node* node) {
         if (node == nullptr) {
             return -1;
@@ -209,8 +210,9 @@ template<typename K, typename V> class RedBlackTree {
             return 0;
         }
     }
-    */
+    //
     // END DEBUGGING HELPER FUNCTIONS
+    //
 
     // By design do not support the operator[]. While the syntax is cool, the
     // usage here is not intuitive which makes it prone to developer error.
@@ -219,7 +221,6 @@ template<typename K, typename V> class RedBlackTree {
     // -- What happens if there is something already there?
     //
     // V& operator[](const K& key);
-
     V& find(const K& key);
 
     // Inserts a new element with the given key, if the same key is already

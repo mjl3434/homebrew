@@ -28,19 +28,25 @@
 namespace mjl {
 namespace homebrew {
 
-template <typename K, typename V> struct Bucket {
-public:
-    Bucket(void) : key(nullptr), value(nullptr), next(nullptr) {}
+template<typename K, typename V> struct Bucket {
+ public:
+    Bucket(void)
+                    : key(nullptr),
+                      value(nullptr),
+                      next(nullptr) {
+    }
     Bucket(const K& theKey, const V& theValue)
-        : key(new K(theKey)), value(new V(theValue)), next(nullptr) {}
+                    : key(new K(theKey)),
+                      value(new V(theValue)),
+                      next(nullptr) {
+    }
     K* key;
     V* value;
     struct Bucket<K, V>* next;
 };
 
 // This is a generic implementation of a hash function
-template <typename K> class DefaultHashGenerator
-{
+template<typename K> class DefaultHashGenerator {
     static const unsigned int THRESHOLD = 32;
 
     /**
@@ -61,8 +67,7 @@ template <typename K> class DefaultHashGenerator
      * from the chooseBucket function will be divided by the hash table size,
      * and the reminder will be used as an index into the table.
      */
-    static unsigned int chooseBucket(const K& k)
-    {
+    static unsigned int chooseBucket(const K& k) {
         unsigned int sum = 0;
         unsigned char* data = &k;
         unsigned int objectSize = sizeof(k);
@@ -72,14 +77,13 @@ template <typename K> class DefaultHashGenerator
             // If object size is small enough do a simple sum
             for (unsigned int i = 0; i < objectSize; i++)
                 sum += data[i];
-        }
-        else {
+        } else {
 
             // Otherwise sample data evenly distributed across object
-            unsigned int fractionSize = objectSize/THRESHOLD;
+            unsigned int fractionSize = objectSize / THRESHOLD;
 
             for (unsigned int i = 0; i < THRESHOLD; i++) {
-                sum += data[i*fractionSize];
+                sum += data[i * fractionSize];
             }
         }
 
@@ -103,83 +107,73 @@ template <typename K> class DefaultHashGenerator
 //double f;
 //long double g;
 
-template <> class DefaultHashGenerator<char>
-{
-public:
+template<> class DefaultHashGenerator<char> {
+ public:
     static unsigned int chooseBucket(const char& k) {
-        return (unsigned int)k;
+        return (unsigned int) k;
     }
 };
 
-template <> class DefaultHashGenerator<unsigned char>
-{
-public:
+template<> class DefaultHashGenerator<unsigned char> {
+ public:
     static unsigned int chooseBucket(const unsigned char& k) {
-        return (unsigned int)k;
+        return (unsigned int) k;
     }
 };
 
-template <> class DefaultHashGenerator<short>
-{
-public:
+template<> class DefaultHashGenerator<short> {
+ public:
     static unsigned int chooseBucket(const short& k) {
-        return (unsigned int)k;
+        return (unsigned int) k;
     }
 };
 
-template <> class DefaultHashGenerator<unsigned short>
-{
-public:
+template<> class DefaultHashGenerator<unsigned short> {
+ public:
     static unsigned int chooseBucket(const unsigned short& k) {
-        return (unsigned int)k;
+        return (unsigned int) k;
     }
 };
 
-template <> class DefaultHashGenerator<int>
-{
-public:
+template<> class DefaultHashGenerator<int> {
+ public:
     static unsigned int chooseBucket(const int& k) {
-        return (unsigned int)k;
+        return (unsigned int) k;
     }
 };
 
-template <> class DefaultHashGenerator<unsigned int>
-{
-public:
+template<> class DefaultHashGenerator<unsigned int> {
+ public:
     static unsigned int chooseBucket(const unsigned int& k) {
-        return (unsigned int)k;
+        return (unsigned int) k;
     }
 };
 
-template <> class DefaultHashGenerator<long>
-{
-public:
+template<> class DefaultHashGenerator<long> {
+ public:
     static unsigned int chooseBucket(const long& k) {
-        return (unsigned int)k;
+        return (unsigned int) k;
     }
 };
 
-template <> class DefaultHashGenerator<unsigned long>
-{
-public:
+template<> class DefaultHashGenerator<unsigned long> {
+ public:
     static unsigned int chooseBucket(const unsigned long& k) {
-        return (unsigned int)k;
+        return (unsigned int) k;
     }
 };
 
-template <> class DefaultHashGenerator<long long>
-{
-public:
+template<> class DefaultHashGenerator<long long> {
+ public:
     static unsigned int chooseBucket(const long long& k) {
-        return (unsigned int)k;
+        return (unsigned int) k;
     }
 };
 
-template <> class DefaultHashGenerator<unsigned long long>
-{
-public:
+template<> class DefaultHashGenerator<unsigned long long> {
+ public:
     static unsigned int chooseBucket(const unsigned long long& k) {
-        return (unsigned int)k;
+        return (unsigned int) k;
     }
 };
 
@@ -190,33 +184,34 @@ public:
 #define INITIAL_HASH_TABLE_SIZE 37
 #define NUMBER_OF_SIZES 12
 
-template <typename K, typename V, typename HashGenerator = DefaultHashGenerator<K>> class HashTable {
-public:
+template<typename K, typename V, typename HashGenerator = DefaultHashGenerator<K>> class HashTable {
+ public:
 
     // Default constructor
     HashTable()
-        : rehashThreshold(0.5f),
-          hashTableSizesIndex(0),
-          hashTableSize(INITIAL_HASH_TABLE_SIZE),
-          size(0),
-          table(new Bucket<K, V>[INITIAL_HASH_TABLE_SIZE]),
-          hashTableSizes { HASH_TABLE_SIZES } { }
+                    : rehashThreshold(0.5f),
+                      hashTableSizesIndex(0),
+                      hashTableSize(INITIAL_HASH_TABLE_SIZE),
+                      size(0),
+                      table(new Bucket<K, V> [INITIAL_HASH_TABLE_SIZE]),
+                      hashTableSizes { HASH_TABLE_SIZES } {
+    }
 
     // Copy constructor
     HashTable(const HashTable& from)
-        : rehashThreshold(0.5f),
-          hashTableSizesIndex(from.hashTableSizesIndex),
-          hashTableSize(from.hashTableSize),
-          size(from.size),
-          table(new Bucket<K, V>[from.hashTableSize]),
-          hashTableSizes { HASH_TABLE_SIZES } {
+                    : rehashThreshold(0.5f),
+                      hashTableSizesIndex(from.hashTableSizesIndex),
+                      hashTableSize(from.hashTableSize),
+                      size(from.size),
+                      table(new Bucket<K, V> [from.hashTableSize]),
+                      hashTableSizes { HASH_TABLE_SIZES } {
         commonCopy(*this, from);
     }
 
     // Move constructor
     HashTable(HashTable&& from) noexcept
-        : rehashThreshold(0.5f),
-          hashTableSizes { HASH_TABLE_SIZES } {
+                    : rehashThreshold(0.5f),
+                      hashTableSizes { HASH_TABLE_SIZES } {
         hashTableSizesIndex = from.hashTableSizesIndex;
         hashTableSize = from.hashTableSize;
         size = from.size;
@@ -227,7 +222,7 @@ public:
     // Assignment operator
     HashTable& operator=(const HashTable& from) {
         commonDelete();
-        table = new Bucket<K, V>[from.hashTableSize];
+        table = new Bucket<K, V> [from.hashTableSize];
         commonCopy(*this, from);
         return *this;
     }
@@ -285,8 +280,7 @@ public:
                 inserted = true;
                 size++;
                 break;
-            }
-            else if (*current->key == key) {
+            } else if (*current->key == key) {
                 // Otherwise if the bucket is full and we have a matching key. Delete
                 // the value there and replace it with a copy of the new value.
                 delete current->key;
@@ -308,7 +302,7 @@ public:
         // at the end of the list.
         if (inserted == false) {
 
-            float newLoadFactor = (size+1.0)/hashTableSize;
+            float newLoadFactor = (size + 1.0) / hashTableSize;
 
             if (newLoadFactor < rehashThreshold) {
                 Bucket<K, V>* additionalBucket = new Bucket<K, V>;
@@ -316,8 +310,7 @@ public:
                 additionalBucket->value = new V(value);
                 prev->next = additionalBucket;
                 size++;
-            }
-            else {
+            } else {
                 rehash();
                 insert(key, value);
             }
@@ -371,7 +364,7 @@ public:
         return removed;
     }
 
-private:
+ private:
 
     void commonCopy(HashTable& to, const HashTable& from) {
 
@@ -390,8 +383,7 @@ private:
                         // If the current bucket is empty simply copy the data
                         to.table[i].key = new K(*fromCurrent->key);
                         to.table[i].value = new V(*fromCurrent->value);
-                    }
-                    else {
+                    } else {
                         // Otherwise go to the end of the list, allocate and append another bucket
                         // then fill the bucket.
                         Bucket<K, V>* toCurrent = nullptr;
@@ -459,18 +451,17 @@ private:
         unsigned int newSize = 0;
 
         // Calculate new larger hash table size
-        if (hashTableSizesIndex+1 < NUMBER_OF_SIZES) {
+        if (hashTableSizesIndex + 1 < NUMBER_OF_SIZES) {
             // If there is an existing prime number in our list left use that
             hashTableSizesIndex++;
             newSize = hashTableSizes[hashTableSizesIndex];
-        }
-        else {
+        } else {
             // Otherwise we are out of prime numbers, simply begin doubling hash table size
             newSize = 2 * hashTableSize;
         }
 
         // Allocate the larger hash table
-        Bucket<K, V>* newTable = new Bucket<K, V>[newSize];
+        Bucket<K, V>* newTable = new Bucket<K, V> [newSize];
 
         // Iterate over all of the items in the current hash table and copy them to the new larger
         // hash table, using the new hash index
@@ -492,8 +483,7 @@ private:
                         // Case 1: Copying from the first bucket, to the first bucket
                         newTable[newIndex].key = fromCurrent->key;
                         newTable[newIndex].value = fromCurrent->value;
-                    }
-                    else {
+                    } else {
                         // Case 2: Copying from 2nd+ item in list, to the first bucket
 
                         // Save pointer to bucket
@@ -509,8 +499,7 @@ private:
                         // Delete the unneeded bucket
                         delete temp;
                     }
-                }
-                else {
+                } else {
 
                     // Traverse to the end of the new list
                     Bucket<K, V>* toCurrent = &newTable[newIndex];
@@ -522,8 +511,7 @@ private:
                         // Case 3: Copying from the first bucket, to the 2nd+ item in the list
                         toCurrent->key = fromCurrent->key;
                         toCurrent->value = fromCurrent->value;
-                    }
-                    else {
+                    } else {
                         // Case 4: Copying from the 2nd+ item in the list, to the 2nd+ item in the list
 
                         // Save a pointer to the bucket
@@ -566,8 +554,6 @@ private:
     Bucket<K, V>* table;
     const int hashTableSizes[NUMBER_OF_SIZES];
 };
-
-
 
 } /* namespace homebrew */
 } /* namespace mjl */

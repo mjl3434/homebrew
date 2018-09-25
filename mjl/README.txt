@@ -8,8 +8,9 @@ The goals of this project are the following:
   are using the most efficient data structures for their situation.
   
   ToDo:
-  -- Update test code to compare STL results to this library and programatically compare return true/false on tests
-  -- Bidirectional iterators
-  -- Doubly Linked List
-  -- Red-Black Tree
-  -- Add statistical record keeping
+  1. Add doubly linked list
+  2. Add remaining rule of 5 functions 
+  3. Finish test code, compare to STL where possible
+  4. Add statistical record keeping
+  5. Add missing iterators, and bidirectional iterators
+  
